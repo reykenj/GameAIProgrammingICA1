@@ -20,6 +20,16 @@ void SceneData::SetFishCount(const int fishCount)
 	m_fishCount = fishCount;
 }
 
+int SceneData::GetVillagerCount() const
+{
+	return m_villagerCount;
+}
+
+void SceneData::SetVillagerCount(const int villagerCount)
+{
+	m_villagerCount = villagerCount;
+}
+
 SceneData::SceneData()
 {
 }

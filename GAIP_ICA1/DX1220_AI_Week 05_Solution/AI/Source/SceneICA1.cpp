@@ -2,7 +2,7 @@
 #include "GL\glew.h"
 #include "Application.h"
 #include <sstream>
-#include "StatesFish.h"
+#include "StatesVillager.h"
 #include "StatesShark.h"
 #include "SceneData.h"
 #include "PostOffice.h"
@@ -30,7 +30,7 @@ void SceneICA1::Init()
 	Math::InitRNG();
 
 	SceneData::GetInstance()->SetObjectCount(0);
-	SceneData::GetInstance()->SetFishCount(0);
+	SceneData::GetInstance()->SetVillagerCount(0);
 	SceneData::GetInstance()->SetNumGrid(20);
 	SceneData::GetInstance()->SetGridSize(m_worldHeight / SceneData::GetInstance()->GetNumGrid());
 	SceneData::GetInstance()->SetGridOffset(SceneData::GetInstance()->GetGridSize() * 0.5f);
@@ -65,13 +65,13 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 	{
 		GameObject* go = new GameObject(type);
 		m_goList.push_back(go);
-		if (type == GameObject::GO_FISH)
+		if (type == GameObject::GO_VILLAGER)
 		{
 			go->sm = new StateMachine();
-			go->sm->AddState(new StateTooFull("TooFull", go));
-			go->sm->AddState(new StateFull("Full", go));
-			go->sm->AddState(new StateHungry("Hungry", go));
-			go->sm->AddState(new StateDead("Dead", go));
+			go->sm->AddState(new VillagerStateTooFull("TooFull", go));
+			go->sm->AddState(new VillagerStateFull("Full", go));
+			go->sm->AddState(new VillagerStateHungry("Hungry", go));
+			go->sm->AddState(new VillagerStateDead("Dead", go));
 		}
 		else if (type == GameObject::GO_SHARK)
 		{
@@ -138,7 +138,7 @@ void SceneICA1::Update(double dt)
 	if (!bSpaceState && Application::IsKeyPressed(VK_SPACE))
 	{
 		bSpaceState = true;
-		GameObject* go = FetchGO(GameObject::GO_FISH);
+		GameObject* go = FetchGO(GameObject::GO_VILLAGER);
 		go->scale.Set(gridSize, gridSize, gridSize);
 		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
 		go->target = go->pos;
@@ -195,7 +195,7 @@ void SceneICA1::Update(double dt)
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
 			continue;
-		if (go->type == GameObject::GO_FISH)
+		if (go->type == GameObject::GO_VILLAGER)
 		{
 			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
 			{
@@ -274,7 +274,7 @@ void SceneICA1::Update(double dt)
 	//week 4
 	//Counting objects
 	int objectCount = 0;
-	m_numGO[GameObject::GO_FISH] = m_numGO[GameObject::GO_SHARK] = m_numGO[GameObject::GO_FISHFOOD] = 0;
+	m_numGO[GameObject::GO_VILLAGER] = m_numGO[GameObject::GO_SHARK] = m_numGO[GameObject::GO_FISHFOOD] = 0;
 
 	//create message on the stack, then pass the address of message to each gameobject
 	//i.e. everyone shares the same message. fewer allocation of memory.
@@ -288,13 +288,13 @@ void SceneICA1::Update(double dt)
 		//a single key, we opt for this approach
 		//consider changing PostOffice to support this functionality if you want! :)
 		objectCount += static_cast<int>(go->Handle(&msgCheckActive));
-		m_numGO[GameObject::GO_FISH] += static_cast<int>(go->Handle(&msgCheckFish));
+		m_numGO[GameObject::GO_VILLAGER] += static_cast<int>(go->Handle(&msgCheckFish));
 		m_numGO[GameObject::GO_FISHFOOD] += static_cast<int>(go->Handle(&msgCheckFood));
 		m_numGO[GameObject::GO_SHARK] += static_cast<int>(go->Handle(&msgCheckShark));
 	}
 
 	SceneData::GetInstance()->SetObjectCount(objectCount);
-	SceneData::GetInstance()->SetFishCount(m_numGO[GameObject::GO_FISH]);
+	SceneData::GetInstance()->SetVillagerCount(m_numGO[GameObject::GO_VILLAGER]);
 }
 
 
@@ -315,7 +315,7 @@ void SceneICA1::RenderGO(GameObject* go)
 		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
 		modelStack.PopMatrix();
 		break;
-	case GameObject::GO_FISH:
+	case GameObject::GO_VILLAGER:
 		{
 		const int offset = 0;
 		modelStack.PushMatrix();
@@ -462,7 +462,7 @@ void SceneICA1::Render()
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
-		if ((go->active) && (go->type == GameObject::GO_FISH) && (go->nearest))
+		if ((go->active) && (go->type == GameObject::GO_VILLAGER) && (go->nearest))
 		{
 			ss.str("");
 			ss << "Fish:" << go->id << "[" << go->pos.x << "," << go->pos.y <<
@@ -487,7 +487,7 @@ void SceneICA1::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 9);
 
 	ss.str("");
-	ss << "Fishes:" << m_numGO[GameObject::GO_FISH];
+	ss << "Fishes:" << m_numGO[GameObject::GO_VILLAGER];
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 18);
 
 	ss.str("");
@@ -563,7 +563,7 @@ bool SceneICA1::Handle(Message* message)
 			}
 			//message indicates go is hunting for full fish
 			else if (messageWRU->type == MessageWRU::NEAREST_FULLFISH &&
-				go2->type == GameObject::GO_FISH)
+				go2->type == GameObject::GO_VILLAGER)
 			{
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < nearestDistance &&
@@ -575,7 +575,7 @@ bool SceneICA1::Handle(Message* message)
 			}
 			//message indicated go is hunting for highest energy fish
 			else if (messageWRU->type == MessageWRU::HIGHEST_ENERGYFISH &&
-				go2->type == GameObject::GO_FISH)
+				go2->type == GameObject::GO_VILLAGER)
 			{
 				if (go2->energy > highestEnergy)
 				{
