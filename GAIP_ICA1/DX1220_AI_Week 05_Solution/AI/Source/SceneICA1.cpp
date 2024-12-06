@@ -316,11 +316,14 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_FISH:
+		{
+		const int offset = 0;
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
-		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.Scale(go->scale.x - offset, go->scale.y - offset, go->scale.z);
 		modelStack.PushMatrix();
 		modelStack.Rotate(180, 0, 0, 1);
+		}
 
 		if (go->sm)
 		{
@@ -341,6 +344,13 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);
 			modelStack.Scale(displacement.Length() / SceneData::GetInstance()->GetGridSize(), .3f, 1.f);
 			RenderMesh(meshList[GEO_LINE], false);
+			modelStack.PopMatrix();
+
+			// TO Distinguish between each other
+			modelStack.PushMatrix();
+			modelStack.Rotate(0, 0, 0, 1);
+			modelStack.Scale(0.75f, 0.75f, go->scale.z);
+			RenderMesh(meshList[GEO_BLUE_BALL], false);
 			modelStack.PopMatrix();
 		}
 

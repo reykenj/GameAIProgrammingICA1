@@ -46,6 +46,7 @@ public:
 		GEO_AXES,
 		GEO_TEXT,
 		GEO_BALL,
+		GEO_BLUE_BALL,
 		GEO_CUBE,
 		GEO_BG,
 		GEO_TICTACTOE,

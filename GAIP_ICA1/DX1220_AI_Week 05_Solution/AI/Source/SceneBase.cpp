@@ -105,6 +105,7 @@ void SceneBase::Init()
 	}
 	meshList[GEO_AXES] = MeshBuilder::GenerateAxes("reference", 1000, 1000, 1000);
 	meshList[GEO_BALL] = MeshBuilder::GenerateSphere("ball", Color(1, 0, 0), 10, 10, 1.f);
+	meshList[GEO_BLUE_BALL] = MeshBuilder::GenerateSphere("ball", Color(0, 0, 1), 10, 10, 1.f);
 	meshList[GEO_CUBE] = MeshBuilder::GenerateCube("cube", Color(1, 1, 1), 2.f);
 	meshList[GEO_TEXT] = MeshBuilder::GenerateText("text", 16, 16);
 	meshList[GEO_TEXT]->textureID = LoadTGA("Image//calibri.tga");
@@ -133,6 +134,7 @@ void SceneBase::Init()
 
 
 	meshList[GEO_NEUTRAL_VILLAGER] = MeshBuilder::GenerateQuad("neutralvillager", Color(1, 1, 1));
+	//meshList[GEO_NEUTRAL_VILLAGER]->material.kAmbient.Set(1, 0, 0);
 	meshList[GEO_NEUTRAL_VILLAGER]->textureID = LoadTGA("Image//NeutralVillager.tga");
 
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);

@@ -16,6 +16,7 @@ struct GameObject : public ObjectBase
 		GO_FISH,
 		GO_SHARK,
 		GO_FISHFOOD,
+		GO_VILLAGER,
 		GO_BLACK,
 		GO_WHITE,
 		GO_TOTAL, //must be last
