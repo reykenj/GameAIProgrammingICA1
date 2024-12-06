@@ -15,6 +15,8 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	id = ++count;
 	moveLeft = moveRight = moveUp = moveDown = true;
 	Stationary = false;
+	Collision = false;
+	GridSizeMultiplier = 1;
 }
 
 GameObject::~GameObject()
@@ -42,4 +44,15 @@ bool GameObject::Handle(Message* message)
 	//note: pardon the inconsistency(when compared to SceneMovement's Handle)
 	//we do NOT want to create a new message on the heap PER object for performance reasons
 	return false;
+}
+
+void GameObject::OnCollision(GameObject* go2)
+{
+	if (this->type == GO_COW) {
+		if (go2->type == GO_GRASS) {
+			energy += 2.5f;
+			go2->active = false;
+		}
+	}
+	return;
 }

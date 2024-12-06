@@ -27,12 +27,14 @@ void CowStateTooFull::Update(double dt)
 {
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy < 10.f)
-		m_go->sm->SetNextState("Full");
+		m_go->sm->SetNextState("CowFull");
 }
 
 void CowStateTooFull::Exit()
 {
 }
+
+
 
 CowStateFull::CowStateFull(const std::string& stateID, GameObject* go)
 	: State(stateID),
@@ -58,9 +60,9 @@ void CowStateFull::Update(double dt)
 
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 10.f)
-		m_go->sm->SetNextState("TooFull");
+		m_go->sm->SetNextState("CowTooFull");
 	else if (m_go->energy < 5.f)
-		m_go->sm->SetNextState("Hungry");
+		m_go->sm->SetNextState("CowHungry");
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 
 	//once nearest is set, fish will continue to move away from shark even
@@ -88,9 +90,9 @@ void CowStateFull::Update(double dt)
 			//message is allocated on the heap (WARNING: expensive. 
 			//either refactor PostOffice to not assume heap-allocated messages,
 			//or pool messages to avoid real-time heap allocation)
-			const float SHARK_DIST = 10.f * SceneData::GetInstance()->GetGridSize();
+			const float VILLAGER_DIST = 10.f * SceneData::GetInstance()->GetGridSize();
 			PostOffice::GetInstance()->Send("Scene",
-				new MessageWRU(m_go, MessageWRU::NEAREST_SHARK, SHARK_DIST));
+				new MessageWRU(m_go, MessageWRU::NEAREST_VILLAGER, VILLAGER_DIST));
 		}
 	}
 }
@@ -98,6 +100,7 @@ void CowStateFull::Update(double dt)
 void CowStateFull::Exit()
 {
 }
+
 
 CowStateHungry::CowStateHungry(const std::string& stateID, GameObject* go)
 	: State(stateID),
@@ -123,10 +126,10 @@ void CowStateHungry::Update(double dt)
 
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 5.f)
-		m_go->sm->SetNextState("Full");
+		m_go->sm->SetNextState("CowFull");
 	else if (m_go->energy < 0.f)
 	{
-		m_go->sm->SetNextState("Dead");
+		m_go->sm->SetNextState("CowDead");
 	}
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 	if (m_go->nearest)
@@ -151,7 +154,7 @@ void CowStateHungry::Update(double dt)
 			//either refactor PostOffice to not assume heap-allocated messages,
 			//or pool messages to avoid real-time heap allocation)
 			const float FOOD_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
-			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_FISHFOOD, FOOD_DIST));
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_GRASS, FOOD_DIST));
 		}
 	}
 }
@@ -159,6 +162,7 @@ void CowStateHungry::Update(double dt)
 void CowStateHungry::Exit()
 {
 }
+
 
 CowStateDead::CowStateDead(const std::string& stateID, GameObject* go)
 	: State(stateID),
@@ -188,3 +192,4 @@ void CowStateDead::Update(double dt)
 void CowStateDead::Exit()
 {
 }
+

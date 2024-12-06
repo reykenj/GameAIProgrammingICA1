@@ -15,6 +15,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class StateNaughty : public State
@@ -29,6 +30,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class StateHappy : public State
@@ -41,6 +43,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 #endif

@@ -16,6 +16,7 @@ public:
 	virtual void Enter() = 0;
 	virtual void Update(double dt) = 0;
 	virtual void Exit() = 0;
+	//virtual void OnCollision(GameObject* go2) = 0;
 };
 
 #endif

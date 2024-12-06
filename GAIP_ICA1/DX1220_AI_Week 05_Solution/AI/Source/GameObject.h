@@ -43,11 +43,14 @@ struct GameObject : public ObjectBase
 	bool moveDown;
 	StateMachine *sm;
 	bool Stationary;
+	bool Collision;
+	int GridSizeMultiplier;
 
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_NONE);
 	~GameObject();
 
 	bool Handle(Message* message);
+	void OnCollision(GameObject *go2);
 };
 
 #endif

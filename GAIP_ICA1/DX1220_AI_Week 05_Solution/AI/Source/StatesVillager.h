@@ -14,6 +14,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class VillagerStateFull : public State
@@ -27,6 +28,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class VillagerStateHungry : public State
@@ -41,6 +43,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class VillagerStateDead : public State
@@ -53,6 +56,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 #endif

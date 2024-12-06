@@ -34,6 +34,8 @@ void VillagerStateTooFull::Exit()
 {
 }
 
+
+
 VillagerStateFull::VillagerStateFull(const std::string& stateID, GameObject* go)
 	: State(stateID),
 	m_go(go),
@@ -99,6 +101,8 @@ void VillagerStateFull::Exit()
 {
 }
 
+
+
 VillagerStateHungry::VillagerStateHungry(const std::string& stateID, GameObject* go)
 	: State(stateID),
 	m_go(go),
@@ -160,6 +164,8 @@ void VillagerStateHungry::Exit()
 {
 }
 
+
+
 VillagerStateDead::VillagerStateDead(const std::string& stateID, GameObject* go)
 	: State(stateID),
 	m_go(go)
@@ -188,3 +194,5 @@ void VillagerStateDead::Update(double dt)
 void VillagerStateDead::Exit()
 {
 }
+
+

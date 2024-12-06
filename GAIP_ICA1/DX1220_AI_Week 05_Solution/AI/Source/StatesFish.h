@@ -14,6 +14,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class StateFull : public State
@@ -27,6 +28,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class StateHungry : public State
@@ -41,6 +43,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class StateDead : public State
@@ -53,6 +56,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 #endif

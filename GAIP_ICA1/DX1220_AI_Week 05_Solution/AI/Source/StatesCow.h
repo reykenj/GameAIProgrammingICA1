@@ -1,5 +1,5 @@
-#ifndef STATES_FISH_H
-#define STATES_FISH_H
+#ifndef STATES_COW_H
+#define STATES_COW_H
 
 #include "State.h"
 #include "GameObject.h"
@@ -14,6 +14,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class CowStateFull : public State
@@ -27,6 +28,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class CowStateHungry : public State
@@ -41,6 +43,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 class CowStateDead : public State
@@ -53,6 +56,7 @@ public:
 	virtual void Enter();
 	virtual void Update(double dt);
 	virtual void Exit();
+
 };
 
 #endif
