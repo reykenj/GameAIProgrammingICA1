@@ -14,6 +14,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	static int count = 0;
 	id = ++count;
 	moveLeft = moveRight = moveUp = moveDown = true;
+	Stationary = false;
 }
 
 GameObject::~GameObject()

@@ -17,6 +17,7 @@ struct GameObject : public ObjectBase
 		GO_SHARK,
 		GO_FISHFOOD,
 		GO_VILLAGER,
+		GO_GRASS,
 		GO_BLACK,
 		GO_WHITE,
 		GO_TOTAL, //must be last
@@ -39,6 +40,7 @@ struct GameObject : public ObjectBase
 	bool moveUp;
 	bool moveDown;
 	StateMachine *sm;
+	bool Stationary;
 
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_NONE);
 	~GameObject();

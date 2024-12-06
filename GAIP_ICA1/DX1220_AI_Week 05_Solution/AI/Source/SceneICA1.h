@@ -30,6 +30,8 @@ protected:
 	GameObject* m_ghost;
 
 	float m_hourOfTheDay;
+	float GrassSpawnMaxTime;
+	float currentTime;
 	int m_numGO[GameObject::GO_TOTAL];
 	float zOffset;
 };

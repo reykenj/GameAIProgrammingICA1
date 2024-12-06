@@ -20,6 +20,9 @@ void SceneICA1::Init()
 {
 	SceneBase::Init();
 
+	GrassSpawnMaxTime = 5.0f;
+	currentTime = 0.0f ;
+
 	//Calculating aspect ratio
 	m_worldHeight = 100.f;
 	m_worldWidth = m_worldHeight * (float)Application::GetWindowWidth() / Application::GetWindowHeight();
@@ -72,7 +75,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateFull("Full", go));
 			go->sm->AddState(new VillagerStateHungry("Hungry", go));
 			go->sm->AddState(new VillagerStateDead("Dead", go));
-		}
+		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 		else if (type == GameObject::GO_SHARK)
 		{
 			go->sm = new StateMachine();
@@ -110,6 +113,26 @@ void SceneICA1::Update(double dt)
 	m_hourOfTheDay += HOUR_SPEED * static_cast<float>(dt) * m_speed;
 	if (m_hourOfTheDay >= 24.f)
 		m_hourOfTheDay = 0;
+
+
+	//if(m_hourOfTheDay < 12.0f)
+	currentTime += dt;
+	if (currentTime >= GrassSpawnMaxTime) {
+
+		GameObject* go = FetchGO(GameObject::GO_GRASS);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->steps = 0;
+		go->moveSpeed = 0;
+		go->Stationary = true;
+		//go->energy = 8.f;
+		go->nearest = NULL;
+		//go->sm->SetNextState("Full");
+
+		currentTime = 0;
+	}
+
 
 	//Input Section
 	static bool bLButtonState = false;
@@ -241,6 +264,8 @@ void SceneICA1::Update(double dt)
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
 			continue;
+		if (go->Stationary)
+			continue;
 		Vector3 dir = go->target - go->pos;
 		if (dir.Length() < go->moveSpeed * dt * m_speed)
 		{
@@ -313,6 +338,20 @@ void SceneICA1::RenderGO(GameObject* go)
 		ss.precision(3);
 		ss << go->id;
 		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_GRASS:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
+		RenderMesh(meshList[GEO_GRASS], false);
+		modelStack.PopMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->id;
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_VILLAGER:
