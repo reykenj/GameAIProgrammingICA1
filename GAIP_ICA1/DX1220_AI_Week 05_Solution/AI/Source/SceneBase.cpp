@@ -142,6 +142,9 @@ void SceneBase::Init()
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("grass", Color(1, 1, 1));
 	meshList[GEO_GRASS]->textureID = LoadTGA("Image//grassnobackground.tga");
 
+	meshList[GEO_TREE] = MeshBuilder::GenerateQuad("grass", Color(1, 1, 1));
+	meshList[GEO_TREE]->textureID = LoadTGA("Image//tree.tga");
+
 	meshList[GEO_NEUTRAL_COW] = MeshBuilder::GenerateQuad("Cow", Color(1, 1, 1));
 	meshList[GEO_NEUTRAL_COW]->textureID = LoadTGA("Image//cow.tga");
 

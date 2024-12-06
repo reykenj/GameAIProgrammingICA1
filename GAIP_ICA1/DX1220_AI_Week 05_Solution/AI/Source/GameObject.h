@@ -18,6 +18,7 @@ struct GameObject : public ObjectBase
 		GO_FISHFOOD,
 		GO_VILLAGER,
 		GO_GRASS,
+		GO_TREE,
 		GO_COW,
 		GO_BLACK,
 		GO_WHITE,

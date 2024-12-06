@@ -22,6 +22,7 @@ void SceneICA1::Init()
 
 	GrassSpawnMaxTime = 5.0f;
 	CowSpawnMaxTime = 10.0f;
+	TreeSpawnMaxTime = 10.0f;
 	currentTime = 0.0f ;
 
 	//Calculating aspect ratio
@@ -150,6 +151,20 @@ void SceneICA1::Update(double dt)
 		go->energy = 8.f;
 		go->nearest = NULL;
 		go->sm->SetNextState("CowFull");
+	}
+
+	if (currentTime <= TreeSpawnMaxTime && currentTime + dt >= TreeSpawnMaxTime) {
+
+		GameObject* go = FetchGO(GameObject::GO_TREE);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->steps = 0;
+		go->moveSpeed = 0.0f;
+		go->Stationary = true;
+		//go->energy = 8.f;
+		go->nearest = NULL;
+		//go->sm->SetNextState("CowFull");
 		currentTime = 0;
 	}
 
@@ -369,6 +384,20 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PushMatrix();
 		modelStack.Rotate(180, 0, 0, 1);
 		RenderMesh(meshList[GEO_GRASS], false);
+		modelStack.PopMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->id;
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_TREE:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
+		RenderMesh(meshList[GEO_TREE], false);
 		modelStack.PopMatrix();
 		//ss.str("");
 		//ss.precision(3);
