@@ -3,6 +3,7 @@
 #include "Application.h"
 #include <sstream>
 #include "StatesVillager.h"
+#include "StatesCow.h"
 #include "StatesShark.h"
 #include "SceneData.h"
 #include "PostOffice.h"
@@ -81,10 +82,10 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 		else if (type == GameObject::GO_COW)
 		{
 			go->sm = new StateMachine();
-			go->sm->AddState(new VillagerStateTooFull("CowTooFull", go));
-			go->sm->AddState(new VillagerStateFull("CowFull", go));
-			go->sm->AddState(new VillagerStateHungry("CowHungry", go));
-			go->sm->AddState(new VillagerStateDead("CowDead", go));
+			go->sm->AddState(new CowStateTooFull("CowTooFull", go));
+			go->sm->AddState(new CowStateFull("CowFull", go));
+			go->sm->AddState(new CowStateHungry("CowHungry", go));
+			go->sm->AddState(new CowStateDead("CowDead", go));
 		}
 		else if (type == GameObject::GO_SHARK)
 		{
@@ -135,6 +136,7 @@ void SceneICA1::Update(double dt)
 		go->steps = 0;
 		go->moveSpeed = 0;
 		go->Stationary = true;
+		go->GridSizeMultiplier = 2.0f;
 		//go->energy = 8.f;
 		go->nearest = NULL;
 		//go->sm->SetNextState("Full");
@@ -151,6 +153,7 @@ void SceneICA1::Update(double dt)
 		go->energy = 8.f;
 		go->nearest = NULL;
 		go->sm->SetNextState("CowFull");
+		go->Collision = true;
 	}
 
 	if (currentTime <= TreeSpawnMaxTime && currentTime + dt >= TreeSpawnMaxTime) {
@@ -205,6 +208,7 @@ void SceneICA1::Update(double dt)
 		go->steps = 0;
 		go->energy = 8.f;
 		go->nearest = NULL;
+		go->Collision = true;
 		go->sm->SetNextState("Full");
 	}
 	else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
@@ -255,42 +259,19 @@ void SceneICA1::Update(double dt)
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
 			continue;
-		if (go->type == GameObject::GO_VILLAGER)
+		if (go->Collision)
 		{
 			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
 			{
 				GameObject* go2 = (GameObject*)*it2;
 				if (!go2->active)
 					continue;
-				if (go2->type == GameObject::GO_SHARK)
+
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < gridSize * go->GridSizeMultiplier || distance < gridSize * go2->GridSizeMultiplier)
 				{
-					float distance = (go->pos - go2->pos).Length();
-					if (distance < gridSize)
-					{
-						go->energy = -1;
-					}
+					go->OnCollision(go2);
 				}
-				else if (go2->type == GameObject::GO_FISHFOOD)
-				{
-					float distance = (go->pos - go2->pos).Length();
-					if (distance < gridSize)
-					{
-						go->energy += 2.5f;
-						go2->active = false;
-					}
-				}
-			}
-		}
-		else if (go->type == GameObject::GO_SHARK)
-		{
-			go->nearest = NULL;
-			float nearestDistance = FLT_MAX;
-			float highestEnergy = FLT_MIN;
-			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
-			{
-				GameObject* go2 = (GameObject*)*it2;
-				if (!go2->active)
-					continue;
 			}
 		}
 	}
@@ -708,25 +689,34 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
-			//message indicates go is hunting for full fish
-			else if (messageWRU->type == MessageWRU::NEAREST_FULLFISH &&
-				go2->type == GameObject::GO_VILLAGER)
+			////message indicated go is hunting for highest energy fish
+			else if (messageWRU->type == MessageWRU::NEAREST_GRASS &&
+				go2->type == GameObject::GO_GRASS)
 			{
 				float distance = (go->pos - go2->pos).Length();
-				if (distance < nearestDistance &&
-					(go2->sm->GetCurrentState() == "TooFull" || go2->sm->GetCurrentState() == "Full"))
+				if (distance < messageWRU->threshold && distance < nearestDistance)
 				{
 					nearestDistance = distance;
 					go->nearest = go2;
 				}
 			}
-			//message indicated go is hunting for highest energy fish
-			else if (messageWRU->type == MessageWRU::HIGHEST_ENERGYFISH &&
+			else if (messageWRU->type == MessageWRU::NEAREST_TREE &&
+				go2->type == GameObject::GO_TREE)
+			{
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
+				{
+					nearestDistance = distance;
+					go->nearest = go2;
+				}
+			}
+			else if (messageWRU->type == MessageWRU::NEAREST_VILLAGER &&
 				go2->type == GameObject::GO_VILLAGER)
 			{
-				if (go2->energy > highestEnergy)
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
 				{
-					highestEnergy = go2->energy;
+					nearestDistance = distance;
 					go->nearest = go2;
 				}
 			}

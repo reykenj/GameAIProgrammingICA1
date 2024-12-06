@@ -44,7 +44,7 @@ struct GameObject : public ObjectBase
 	StateMachine *sm;
 	bool Stationary;
 	bool Collision;
-	int GridSizeMultiplier;
+	float GridSizeMultiplier;
 
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_NONE);
 	~GameObject();

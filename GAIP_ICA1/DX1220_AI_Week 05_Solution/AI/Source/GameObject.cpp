@@ -16,7 +16,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	moveLeft = moveRight = moveUp = moveDown = true;
 	Stationary = false;
 	Collision = false;
-	GridSizeMultiplier = 1;
+	GridSizeMultiplier = 1.0f;
 }
 
 GameObject::~GameObject()
