@@ -21,6 +21,7 @@ void SceneICA1::Init()
 	SceneBase::Init();
 
 	GrassSpawnMaxTime = 5.0f;
+	CowSpawnMaxTime = 10.0f;
 	currentTime = 0.0f ;
 
 	//Calculating aspect ratio
@@ -76,6 +77,14 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateHungry("Hungry", go));
 			go->sm->AddState(new VillagerStateDead("Dead", go));
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
+		else if (type == GameObject::GO_COW)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new VillagerStateTooFull("CowTooFull", go));
+			go->sm->AddState(new VillagerStateFull("CowFull", go));
+			go->sm->AddState(new VillagerStateHungry("CowHungry", go));
+			go->sm->AddState(new VillagerStateDead("CowDead", go));
+		}
 		else if (type == GameObject::GO_SHARK)
 		{
 			go->sm = new StateMachine();
@@ -116,8 +125,7 @@ void SceneICA1::Update(double dt)
 
 
 	//if(m_hourOfTheDay < 12.0f)
-	currentTime += dt;
-	if (currentTime >= GrassSpawnMaxTime) {
+	if (currentTime <= GrassSpawnMaxTime && currentTime + dt >= GrassSpawnMaxTime) {
 
 		GameObject* go = FetchGO(GameObject::GO_GRASS);
 		go->scale.Set(gridSize, gridSize, gridSize);
@@ -129,9 +137,23 @@ void SceneICA1::Update(double dt)
 		//go->energy = 8.f;
 		go->nearest = NULL;
 		//go->sm->SetNextState("Full");
+	}
 
+	if (currentTime <= CowSpawnMaxTime && currentTime + dt >= CowSpawnMaxTime) {
+
+		GameObject* go = FetchGO(GameObject::GO_COW);
+		go->scale.Set(gridSize, gridSize, gridSize);
+		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		go->target = go->pos;
+		go->steps = 0;
+		go->moveSpeed = 1.0f;
+		go->energy = 8.f;
+		go->nearest = NULL;
+		go->sm->SetNextState("CowFull");
 		currentTime = 0;
 	}
+
+	currentTime += dt;
 
 
 	//Input Section
@@ -352,6 +374,63 @@ void SceneICA1::RenderGO(GameObject* go)
 		//ss.precision(3);
 		//ss << go->id;
 		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_COW:
+		{
+		const int offset = 0;
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+		modelStack.Scale(go->scale.x - offset, go->scale.y - offset, go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
+		}
+
+		if (go->sm)
+		{
+			if (go->sm->GetCurrentState() == "CowTooFull")
+				RenderMesh(meshList[GEO_TOOFULL], false);
+			else if (go->sm->GetCurrentState() == "CowFull")
+				RenderMesh(meshList[GEO_NEUTRAL_COW], false);
+			else if (go->sm->GetCurrentState() == "CowHungry")
+				RenderMesh(meshList[GEO_HUNGRY], false);
+			else
+				RenderMesh(meshList[GEO_DEAD], false);
+		}
+		{
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			const Vector3 displacement = go->target - go->pos;
+			modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);
+			modelStack.Scale(displacement.Length() / SceneData::GetInstance()->GetGridSize(), .3f, 1.f);
+			RenderMesh(meshList[GEO_LINE], false);
+			modelStack.PopMatrix();
+
+			//// TO Distinguish between each other
+			//modelStack.PushMatrix();
+			//modelStack.Rotate(0, 0, 0, 1);
+			//modelStack.Scale(0.75f, 0.75f, go->scale.z);
+			//RenderMesh(meshList[GEO_BLUE_BALL], false);
+			//modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		ss.precision(3);
+		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		ss.str("");
+		ss.precision(3);
+		ss << go->energy;
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_VILLAGER:

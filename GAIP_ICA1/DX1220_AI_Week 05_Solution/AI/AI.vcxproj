@@ -146,6 +146,7 @@
     <ClCompile Include="Source\shader.cpp" />
     <ClCompile Include="Source\State.cpp" />
     <ClCompile Include="Source\StateMachine.cpp" />
+    <ClCompile Include="Source\StatesCow.cpp" />
     <ClCompile Include="Source\StatesFish.cpp" />
     <ClCompile Include="Source\StatesShark.cpp" />
     <ClCompile Include="Source\StatesVillager.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="Source\shader.hpp" />
     <ClInclude Include="Source\State.h" />
     <ClInclude Include="Source\StateMachine.h" />
+    <ClInclude Include="Source\StatesCow.h" />
     <ClInclude Include="Source\StatesFish.h" />
     <ClInclude Include="Source\StatesShark.h" />
     <ClInclude Include="Source\StatesVillager.h" />

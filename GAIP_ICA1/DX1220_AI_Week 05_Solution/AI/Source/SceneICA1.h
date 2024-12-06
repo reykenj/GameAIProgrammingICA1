@@ -31,6 +31,7 @@ protected:
 
 	float m_hourOfTheDay;
 	float GrassSpawnMaxTime;
+	float CowSpawnMaxTime;
 	float currentTime;
 	int m_numGO[GameObject::GO_TOTAL];
 	float zOffset;
