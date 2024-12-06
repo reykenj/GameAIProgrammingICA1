@@ -319,19 +319,23 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
 		modelStack.Scale(go->scale.x, go->scale.y, go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
 
 		if (go->sm)
 		{
 			if (go->sm->GetCurrentState() == "TooFull")
 				RenderMesh(meshList[GEO_TOOFULL], false);
 			else if (go->sm->GetCurrentState() == "Full")
-				RenderMesh(meshList[GEO_FULL], false);
+				RenderMesh(meshList[GEO_NEUTRAL_VILLAGER], false);
 			else if (go->sm->GetCurrentState() == "Hungry")
 				RenderMesh(meshList[GEO_HUNGRY], false);
 			else
 				RenderMesh(meshList[GEO_DEAD], false);
 		}
 		{
+			modelStack.PopMatrix();
+
 			modelStack.PushMatrix();
 			const Vector3 displacement = go->target - go->pos;
 			modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);

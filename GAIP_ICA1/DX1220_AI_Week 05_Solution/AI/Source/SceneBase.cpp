@@ -130,6 +130,11 @@ void SceneBase::Init()
 	meshList[GEO_CRAZY]->textureID = LoadTGA("Image//crazy.tga");
 	meshList[GEO_HAPPY] = MeshBuilder::GenerateQuad("happy", Color(1, 1, 1));
 	meshList[GEO_HAPPY]->textureID = LoadTGA("Image//happy.tga");
+
+
+	meshList[GEO_NEUTRAL_VILLAGER] = MeshBuilder::GenerateQuad("neutralvillager", Color(1, 1, 1));
+	meshList[GEO_NEUTRAL_VILLAGER]->textureID = LoadTGA("Image//NeutralVillager.tga");
+
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
 	meshList[GEO_LINE] = MeshBuilder::GenerateLine("line");
 
