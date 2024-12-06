@@ -140,6 +140,7 @@
     <ClCompile Include="Source\PostOffice.cpp" />
     <ClCompile Include="Source\SceneBase.cpp" />
     <ClCompile Include="Source\SceneData.cpp" />
+    <ClCompile Include="Source\SceneICA1.cpp" />
     <ClCompile Include="Source\SceneMovement.cpp" />
     <ClCompile Include="Source\SceneTicTacToe.cpp" />
     <ClCompile Include="Source\shader.cpp" />
@@ -167,6 +168,7 @@
     <ClInclude Include="Source\Scene.h" />
     <ClInclude Include="Source\SceneBase.h" />
     <ClInclude Include="Source\SceneData.h" />
+    <ClInclude Include="Source\SceneICA1.h" />
     <ClInclude Include="Source\SceneMovement.h" />
     <ClInclude Include="Source\SceneTicTacToe.h" />
     <ClInclude Include="Source\shader.hpp" />
