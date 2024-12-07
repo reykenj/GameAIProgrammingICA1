@@ -70,12 +70,54 @@ void SceneICA1::Init()
 			go->pos.Set(RandomPosition.x + x * gridSize, RandomPosition.y + y * gridSize, 0);
 			go->target = go->pos;
 			go->steps = 0;
-			go->energy = 8.f;
+			//go->energy = 8.f;
 			go->nearest = NULL;
 			go->Collision = true;
 			go->sm->SetNextState("VillagerFull");
 		}
 	}
+
+	int noGrid = SceneData::GetInstance()->GetNumGrid();
+
+	for (int i = 0; i < 10; i++) {
+
+		GameObject* grass = FetchGO(GameObject::GO_GRASS);
+		grass->scale.Set(gridSize, gridSize, gridSize);
+		grass->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		grass->target = grass->pos;
+		grass->steps = 0;
+		grass->moveSpeed = 0;
+		grass->Stationary = true;
+		grass->GridSizeMultiplier = 1.5f;
+		//go->energy = 8.f;
+		grass->nearest = NULL;
+		//go->sm->SetNextState("Full");
+
+		GameObject* cow = FetchGO(GameObject::GO_COW);
+		cow->scale.Set(gridSize, gridSize, gridSize);
+		cow->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		cow->target = cow->pos;
+		cow->steps = 0;
+		cow->moveSpeed = 1.0f;
+		//go->energy = 8.f;
+		//go->hp = 10.0f;
+		cow->nearest = NULL;
+		cow->sm->SetNextState("CowFull");
+		cow->Collision = true;
+
+		GameObject* tree = FetchGO(GameObject::GO_TREE);
+		tree->scale.Set(gridSize, gridSize, gridSize);
+		tree->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+		tree->target = tree->pos;
+		tree->steps = 0;
+		tree->moveSpeed = 0.0f;
+		tree->Stationary = true;
+		tree->GridSizeMultiplier = 1.5f;
+		//go->energy = 8.f;
+		tree->nearest = NULL;
+	}
+	
+
 
 	//week 4
 	//register this scene with the "post office"
@@ -91,6 +133,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 		if (!go->active && go->type == type)
 		{
 			go->active = true;
+			go->hp = go->Maxhp;
+			go->energy = go->Maxenergy;
 			return go;
 		}
 	}
@@ -106,7 +150,9 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateHungry("VillagerHungry", go));
 			go->sm->AddState(new VillagerStateDead("VillagerDead", go));
 			go->sm->AddState(new VillagerStateCutTree("VillagerCuttingTree", go));
-			go->sm->AddState(new VillagerStateBringResourcesToHouse("VillageBringResourcesToHouse", go));
+			go->sm->AddState(new VillagerStateGoToHouse("VillagerGoToHouse", go));
+			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 		else if (type == GameObject::GO_COW)
 		{
@@ -116,6 +162,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new CowStateHungry("CowHungry", go));
 			go->sm->AddState(new CowStateDead("CowDead", go));
 			go->sm->AddState(new CowStateEating("CowEating", go));
+			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
 		}
 		else if (type == GameObject::GO_SHARK)
 		{
@@ -123,6 +171,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new StateCrazy("Crazy", go));
 			go->sm->AddState(new StateNaughty("Naughty", go));
 			go->sm->AddState(new StateHappy("Happy", go));
+			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
 		}
 	}
 	return FetchGO(type);
@@ -180,8 +230,8 @@ void SceneICA1::Update(double dt)
 		go->target = go->pos;
 		go->steps = 0;
 		go->moveSpeed = 1.0f;
-		go->energy = 8.f;
-		go->hp = 10.0f;
+		//go->energy = 8.f;
+		//go->hp = 10.0f;
 		go->nearest = NULL;
 		go->sm->SetNextState("CowFull");
 		go->Collision = true;
@@ -302,7 +352,7 @@ void SceneICA1::Update(double dt)
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < gridSize * go->GridSizeMultiplier || distance < gridSize * go2->GridSizeMultiplier)
 				{
-					go->OnCollision(go2);
+					go->OnCollision(go2, dt);
 				}
 			}
 		}

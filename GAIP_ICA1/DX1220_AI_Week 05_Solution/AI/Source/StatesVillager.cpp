@@ -131,6 +131,7 @@ void VillagerStateHungry::Enter()
 	m_go->moveSpeed = HUNGRY_SPEED;
 	m_go->nearest = NULL;
 	m_elapsed = MESSAGE_INTERVAL;
+	m_go->Hungry = true;
 }
 
 void VillagerStateHungry::Update(double dt)
@@ -138,11 +139,14 @@ void VillagerStateHungry::Update(double dt)
 	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
-	if (m_go->energy >= 5.f)
-		m_go->sm->SetNextState("VillagerFull");
-	else if (m_go->energy < 0.f || m_go->hp <= 0)
+
+
+	if (m_go->energy < 0.f || m_go->hp <= 0)
 	{
 		m_go->sm->SetNextState("VillagerDead");
+	}
+	else if (SceneData::GetInstance()->GetFoodEnergyCount(m_go->RED) + m_go->FoodEnergyCollected >= 10 - m_go->energy) {
+		m_go->sm->SetNextState("VillagerGoToHouse");
 	}
 	const float tolerance = 0.5f;
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
@@ -268,7 +272,7 @@ void VillagerStateCutTree::Update(double dt)
 			CutTree = true;
 		}
 		if (CutTree) {
-			m_go->sm->SetNextState("VillageBringResourcesToHouse");
+			m_go->sm->SetNextState("VillagerGoToHouse");
 		}
 		else {
 			if (m_go->nearest->active == false) {
@@ -298,17 +302,17 @@ void VillagerStateCutTree::Exit()
 	m_go->Stationary = false;
 }
 
-VillagerStateBringResourcesToHouse::VillagerStateBringResourcesToHouse(const std::string& stateID, GameObject* go) : State(stateID),
+VillagerStateGoToHouse::VillagerStateGoToHouse(const std::string& stateID, GameObject* go) : State(stateID),
 m_go(go)
 {
 
 }
 
-VillagerStateBringResourcesToHouse::~VillagerStateBringResourcesToHouse()
+VillagerStateGoToHouse::~VillagerStateGoToHouse()
 {
 }
 
-void VillagerStateBringResourcesToHouse::Enter()
+void VillagerStateGoToHouse::Enter()
 {
 	m_go->moveSpeed = HUNGRY_SPEED;
 	m_go->Stationary = false;
@@ -316,7 +320,7 @@ void VillagerStateBringResourcesToHouse::Enter()
 	m_elapsed = MESSAGE_INTERVAL;
 }
 
-void VillagerStateBringResourcesToHouse::Update(double dt)
+void VillagerStateGoToHouse::Update(double dt)
 {
 	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 
@@ -377,6 +381,6 @@ void VillagerStateBringResourcesToHouse::Update(double dt)
 	}
 }
 
-void VillagerStateBringResourcesToHouse::Exit()
+void VillagerStateGoToHouse::Exit()
 {
 }

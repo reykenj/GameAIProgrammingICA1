@@ -75,14 +75,14 @@ public:
 };
 
 
-class VillagerStateBringResourcesToHouse : public State
+class VillagerStateGoToHouse : public State
 {
 	GameObject* m_go;
 	float message_elapsed;
 	float m_elapsed;
 public:
-	VillagerStateBringResourcesToHouse(const std::string& stateID, GameObject* go);
-	virtual ~VillagerStateBringResourcesToHouse();
+	VillagerStateGoToHouse(const std::string& stateID, GameObject* go);
+	virtual ~VillagerStateGoToHouse();
 
 	virtual void Enter();
 	virtual void Update(double dt);

@@ -91,10 +91,10 @@ void SceneData::AddWoodCount(const float AdditionalWood, bool RED)
 float SceneData::GetFoodEnergyCount(bool RED) const
 {
 	if (RED) {
-		return TotalWoodRED;
+		return TotalFoodEnergyRED;
 	}
 	else {
-		return TotalWoodBLUE;
+		return TotalFoodEnergyBLUE;
 	}
 }
 

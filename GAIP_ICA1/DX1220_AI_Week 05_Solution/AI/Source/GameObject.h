@@ -36,11 +36,14 @@ struct GameObject : public ObjectBase
 	int steps;
 	float energy;
 
+	float Maxenergy;
+
 	float WoodCollected;
 	float FoodEnergyCollected;
 
 
 	float hp;
+	float Maxhp;
 	float moveSpeed;
 	float countDown;
 	GameObject *nearest;
@@ -55,11 +58,13 @@ struct GameObject : public ObjectBase
 
 	bool RED;
 
+	bool Hungry = false;
+
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_NONE);
 	~GameObject();
 
 	bool Handle(Message* message);
-	void OnCollision(GameObject *go2);
+	void OnCollision(GameObject *go2, float dt);
 };
 
 #endif
