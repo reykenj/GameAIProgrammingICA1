@@ -28,6 +28,11 @@ void CowStateTooFull::Update(double dt)
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy < 10.f)
 		m_go->sm->SetNextState("CowFull");
+
+	if (m_go->hp <= 0.0f)
+	{
+		m_go->sm->SetNextState("CowDead");
+	}
 }
 
 void CowStateTooFull::Exit()
@@ -63,6 +68,12 @@ void CowStateFull::Update(double dt)
 		m_go->sm->SetNextState("CowTooFull");
 	else if (m_go->energy < 5.f)
 		m_go->sm->SetNextState("CowHungry");
+
+
+	if (m_go->hp <= 0.0f)
+	{
+		m_go->sm->SetNextState("CowDead");
+	}
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 
 	//once nearest is set, fish will continue to move away from shark even
@@ -127,7 +138,7 @@ void CowStateHungry::Update(double dt)
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 5.f)
 		m_go->sm->SetNextState("CowFull");
-	else if (m_go->energy < 0.f)
+	else if (m_go->energy < 0.f || m_go->hp <= 0.0f)
 	{
 		m_go->sm->SetNextState("CowDead");
 	}
@@ -239,7 +250,7 @@ void CowStateEating::Update(double dt)
 	message_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 
 	//m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
-	if (m_go->energy < 0.f)
+	if (m_go->energy < 0.f || m_go->hp <= 0.0f)
 	{
 		m_go->sm->SetNextState("CowDead");
 	}

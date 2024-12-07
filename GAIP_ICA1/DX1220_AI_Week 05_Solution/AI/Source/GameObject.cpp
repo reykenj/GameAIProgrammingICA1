@@ -9,7 +9,8 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	moveSpeed(1.f),
 	energy(10.f),
 	sm(NULL),
-	nearest(NULL)
+	nearest(NULL),
+	hp(10.f)
 {
 	static int count = 0;
 	id = ++count;
@@ -52,6 +53,20 @@ void GameObject::OnCollision(GameObject* go2)
 		if (go2->type == GO_GRASS) {
 			nearest = go2;
 			sm->SetNextState("CowEating");
+		}
+	}
+	else if (this->type == GO_VILLAGER) {
+		if (go2->type == GO_COW) {
+			if (sm->GetCurrentState() == "VillagerHungry") {
+				go2->hp--;
+
+				if(go2->hp <= 0){
+					energy += 2.5f;
+				}
+				//go2->sm->SetNextState("CowEating")
+			}
+			//nearest = go2;
+			//sm->SetNextState("CowEating");
 		}
 	}
 	return;
