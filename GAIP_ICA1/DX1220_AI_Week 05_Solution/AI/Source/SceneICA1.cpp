@@ -516,7 +516,11 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.PushMatrix();
 			modelStack.Rotate(0, 0, 0, 1);
 			modelStack.Scale(0.75f, 0.75f, go->scale.z);
-			RenderMesh(meshList[GEO_BLUE_BALL], false);
+			if (go->RED)
+				RenderMesh(meshList[GEO_BALL], false);
+			else {
+				RenderMesh(meshList[GEO_BLUE_BALL], false);
+			}
 			modelStack.PopMatrix();
 		}
 
@@ -652,17 +656,31 @@ void SceneICA1::Render()
 	ss << "Count:" << SceneData::GetInstance()->GetObjectCount();
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 9);
 
+	/*ss.str("");*/
+	//ss << "Fishes:" << m_numGO[GameObject::GO_VILLAGER];
+	//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 18);
+
+	//ss.str("");
+	//ss << "Shark:" << m_numGO[GameObject::GO_SHARK];
+	//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 15);
+
+	//ss.str("");
+	//ss << "Food:" << m_numGO[GameObject::GO_FISHFOOD];
+	//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 12);
 	ss.str("");
-	ss << "Fishes:" << m_numGO[GameObject::GO_VILLAGER];
-	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 18);
+	ss << "BLUEFoodCollected:" << SceneData::GetInstance()->GetFoodEnergyCount(false);
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 21);
+	ss.str("");
+	ss << "REDFoodCollected:" << SceneData::GetInstance()->GetFoodEnergyCount(true);
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 24);
 
 	ss.str("");
-	ss << "Shark:" << m_numGO[GameObject::GO_SHARK];
+	ss << "BLUEWoodCollected:" << SceneData::GetInstance()->GetWoodCount(false);
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 18);
+	ss.str("");
+	ss << "REDWoodCollected:" << SceneData::GetInstance()->GetWoodCount(true);
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 15);
 
-	ss.str("");
-	ss << "Food:" << m_numGO[GameObject::GO_FISHFOOD];
-	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 12);
 
 	RenderTextOnScreen(meshList[GEO_TEXT], "Aquarium", Color(0, 1, 0), 3, 50, 0);
 }

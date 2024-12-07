@@ -23,6 +23,14 @@ public:
 	float GetGridOffset() const;
 	void SetGridOffset(const float gridOffset);
 
+
+
+	float GetWoodCount(bool RED) const;
+	void AddWoodCount(const float AdditionalWood, bool RED);
+
+	float GetFoodEnergyCount(bool RED) const;
+	void AddFoodEnergyCount(const float AdditionalFood, bool RED);
+
 private:
 	SceneData();
 	~SceneData();
@@ -32,6 +40,14 @@ private:
 	int m_noGrid;
 	float m_gridSize;
 	float m_gridOffset;
+
+
+
+	float TotalWoodRED = 0;
+	float TotalFoodEnergyRED = 0;
+
+	float TotalWoodBLUE = 0;
+	float TotalFoodEnergyBLUE = 0;
 };
 
 #endif

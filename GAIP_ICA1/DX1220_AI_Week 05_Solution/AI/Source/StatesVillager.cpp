@@ -261,6 +261,7 @@ void VillagerStateCutTree::Update(double dt)
 	if (m_go->nearest && m_go->nearest->type == GameObject::GO_TREE)
 	{
 		m_elapsed -= static_cast<float>(dt);
+		m_go->WoodCollected += static_cast<float>(dt);
 		if (m_elapsed < 0)
 		{
 			m_go->nearest->active = false;

@@ -53,6 +53,8 @@ struct GameObject : public ObjectBase
 	bool Collision;
 	float GridSizeMultiplier;
 
+	bool RED;
+
 	GameObject(GAMEOBJECT_TYPE typeValue = GO_NONE);
 	~GameObject();
 

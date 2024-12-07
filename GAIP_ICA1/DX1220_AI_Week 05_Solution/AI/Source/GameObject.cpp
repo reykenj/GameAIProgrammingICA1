@@ -1,5 +1,6 @@
 #include "GameObject.h"
 #include "ConcreteMessages.h"
+#include "SceneData.h"
 
 GameObject::GameObject(GAMEOBJECT_TYPE typeValue) 
 	: type(typeValue),
@@ -20,6 +21,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	GridSizeMultiplier = 1.0f;
 	WoodCollected = 0;
 	FoodEnergyCollected = 0;
+	RED = false;
 }
 
 GameObject::~GameObject()
@@ -83,9 +85,11 @@ void GameObject::OnCollision(GameObject* go2)
 			if (sm->GetCurrentState() == "VillageBringResourcesToHouse") {
 
 				sm->SetNextState("VillagerFull");
+				SceneData::GetInstance()->AddWoodCount(WoodCollected, RED);
+				SceneData::GetInstance()->AddFoodEnergyCount(FoodEnergyCollected, RED);
+				WoodCollected = 0;
+				FoodEnergyCollected = 0;
 			}
-			//nearest = go2;
-			//sm->SetNextState("CowEating");
 		}
 	}
 	return;
