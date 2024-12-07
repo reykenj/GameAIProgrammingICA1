@@ -4,9 +4,9 @@
 #include "SceneData.h"
 
 static const float MESSAGE_INTERVAL = 1.f;
-static const float ENERGY_DROP_RATE = 0.2f;
+static const float ENERGY_DROP_RATE = 0.1f;
 static const float FULL_SPEED = 8.f;
-static const float HUNGRY_SPEED = 4.f;
+static const float HUNGRY_SPEED = 6.f;
 
 VillagerStateTooFull::VillagerStateTooFull(const std::string& stateID, GameObject* go)
 	: State(stateID),
@@ -27,7 +27,7 @@ void VillagerStateTooFull::Update(double dt)
 {
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy < 10.f)
-		m_go->sm->SetNextState("Full");
+		m_go->sm->SetNextState("VillagerFull");
 }
 
 void VillagerStateTooFull::Exit()
@@ -60,9 +60,9 @@ void VillagerStateFull::Update(double dt)
 
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 10.f)
-		m_go->sm->SetNextState("TooFull");
+		m_go->sm->SetNextState("VillagerTooFull");
 	else if (m_go->energy < 5.f)
-		m_go->sm->SetNextState("Hungry");
+		m_go->sm->SetNextState("VillagerHungry");
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 
 	//once nearest is set, fish will continue to move away from shark even
@@ -127,22 +127,44 @@ void VillagerStateHungry::Update(double dt)
 
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 5.f)
-		m_go->sm->SetNextState("Full");
+		m_go->sm->SetNextState("VillagerFull");
 	else if (m_go->energy < 0.f)
 	{
-		m_go->sm->SetNextState("Dead");
+		m_go->sm->SetNextState("VillagerDead");
 	}
+	const float tolerance = 0.5f;
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
-	if (m_go->nearest)
+	if (m_go->nearest && m_go->nearest->active)
 	{
-		if (m_go->nearest->pos.x > m_go->pos.x)
+		// Check x-axis movement
+		if (std::abs(m_go->nearest->pos.x - m_go->pos.x) <= tolerance)
+		{
 			m_go->moveLeft = false;
-		else
 			m_go->moveRight = false;
-		if (m_go->nearest->pos.y > m_go->pos.y)
-			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.x > m_go->pos.x)
+		{
+			m_go->moveLeft = false;
+		}
 		else
+		{
+			m_go->moveRight = false;
+		}
+
+		// Check y-axis movement
+		if (std::abs(m_go->nearest->pos.y - m_go->pos.y) <= tolerance)
+		{
 			m_go->moveUp = false;
+			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.y > m_go->pos.y)
+		{
+			m_go->moveDown = false;
+		}
+		else
+		{
+			m_go->moveUp = false;
+		}
 	}
 	else //go->nearest is nullptr
 	{
@@ -155,7 +177,7 @@ void VillagerStateHungry::Update(double dt)
 			//either refactor PostOffice to not assume heap-allocated messages,
 			//or pool messages to avoid real-time heap allocation)
 			const float FOOD_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
-			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_FISHFOOD, FOOD_DIST));
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_COW, FOOD_DIST));
 		}
 	}
 }

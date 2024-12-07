@@ -74,10 +74,10 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 		if (type == GameObject::GO_VILLAGER)
 		{
 			go->sm = new StateMachine();
-			go->sm->AddState(new VillagerStateTooFull("TooFull", go));
-			go->sm->AddState(new VillagerStateFull("Full", go));
-			go->sm->AddState(new VillagerStateHungry("Hungry", go));
-			go->sm->AddState(new VillagerStateDead("Dead", go));
+			go->sm->AddState(new VillagerStateTooFull("VillagerTooFull", go));
+			go->sm->AddState(new VillagerStateFull("VillagerFull", go));
+			go->sm->AddState(new VillagerStateHungry("VillagerHungry", go));
+			go->sm->AddState(new VillagerStateDead("VillagerDead", go));
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 		else if (type == GameObject::GO_COW)
 		{
@@ -210,7 +210,7 @@ void SceneICA1::Update(double dt)
 		go->energy = 8.f;
 		go->nearest = NULL;
 		go->Collision = true;
-		go->sm->SetNextState("Full");
+		go->sm->SetNextState("VillagerFull");
 	}
 	else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
 	{
@@ -456,11 +456,11 @@ void SceneICA1::RenderGO(GameObject* go)
 
 		if (go->sm)
 		{
-			if (go->sm->GetCurrentState() == "TooFull")
+			if (go->sm->GetCurrentState() == "VillagerTooFull")
 				RenderMesh(meshList[GEO_TOOFULL], false);
-			else if (go->sm->GetCurrentState() == "Full")
+			else if (go->sm->GetCurrentState() == "VillagerFull")
 				RenderMesh(meshList[GEO_NEUTRAL_VILLAGER], false);
-			else if (go->sm->GetCurrentState() == "Hungry")
+			else if (go->sm->GetCurrentState() == "VillagerHungry")
 				RenderMesh(meshList[GEO_HUNGRY], false);
 			else
 				RenderMesh(meshList[GEO_DEAD], false);
@@ -713,6 +713,16 @@ bool SceneICA1::Handle(Message* message)
 			}
 			else if (messageWRU->type == MessageWRU::NEAREST_VILLAGER &&
 				go2->type == GameObject::GO_VILLAGER)
+			{
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
+				{
+					nearestDistance = distance;
+					go->nearest = go2;
+				}
+			}
+			else if (messageWRU->type == MessageWRU::NEAREST_COW &&
+				go2->type == GameObject::GO_COW)
 			{
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)
