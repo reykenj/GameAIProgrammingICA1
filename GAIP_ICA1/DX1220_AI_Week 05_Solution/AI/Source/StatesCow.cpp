@@ -131,17 +131,39 @@ void CowStateHungry::Update(double dt)
 	{
 		m_go->sm->SetNextState("CowDead");
 	}
+	const float tolerance = 0.5f;
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 	if (m_go->nearest)
 	{
-		if (m_go->nearest->pos.x > m_go->pos.x)
+		// Check x-axis movement
+		if (std::abs(m_go->nearest->pos.x - m_go->pos.x) <= tolerance)
+		{
 			m_go->moveLeft = false;
-		else
 			m_go->moveRight = false;
-		if (m_go->nearest->pos.y > m_go->pos.y)
-			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.x > m_go->pos.x)
+		{
+			m_go->moveLeft = false;
+		}
 		else
+		{
+			m_go->moveRight = false;
+		}
+
+		// Check y-axis movement
+		if (std::abs(m_go->nearest->pos.y - m_go->pos.y) <= tolerance)
+		{
 			m_go->moveUp = false;
+			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.y > m_go->pos.y)
+		{
+			m_go->moveDown = false;
+		}
+		else
+		{
+			m_go->moveUp = false;
+		}
 	}
 	else //go->nearest is nullptr
 	{
