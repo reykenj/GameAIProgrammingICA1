@@ -137,7 +137,8 @@ void SceneBase::Init()
 	//meshList[GEO_NEUTRAL_VILLAGER]->material.kAmbient.Set(1, 0, 0);
 	meshList[GEO_NEUTRAL_VILLAGER]->textureID = LoadTGA("Image//NeutralVillager.tga");
 
-
+	meshList[GEO_HOUSE] = MeshBuilder::GenerateQuad("house", Color(1, 1, 1));
+	meshList[GEO_HOUSE]->textureID = LoadTGA("Image//house.tga");
 
 	meshList[GEO_GRASS] = MeshBuilder::GenerateQuad("grass", Color(1, 1, 1));
 	meshList[GEO_GRASS]->textureID = LoadTGA("Image//grassnobackground.tga");

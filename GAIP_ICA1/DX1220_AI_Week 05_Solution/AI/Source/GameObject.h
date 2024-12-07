@@ -19,6 +19,7 @@ struct GameObject : public ObjectBase
 		GO_VILLAGER,
 		GO_GRASS,
 		GO_TREE,
+		GO_HOUSE,
 		GO_COW,
 		GO_BLACK,
 		GO_WHITE,
@@ -34,6 +35,11 @@ struct GameObject : public ObjectBase
 	int id;
 	int steps;
 	float energy;
+
+	float WoodCollected;
+	float FoodEnergyCollected;
+
+
 	float hp;
 	float moveSpeed;
 	float countDown;

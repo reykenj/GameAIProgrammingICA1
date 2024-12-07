@@ -18,6 +18,8 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	Stationary = false;
 	Collision = false;
 	GridSizeMultiplier = 1.0f;
+	WoodCollected = 0;
+	FoodEnergyCollected = 0;
 }
 
 GameObject::~GameObject()
@@ -64,6 +66,23 @@ void GameObject::OnCollision(GameObject* go2)
 					energy += 2.5f;
 				}
 				//go2->sm->SetNextState("CowEating")
+			}
+			//nearest = go2;
+			//sm->SetNextState("CowEating");
+		}
+		if (go2->type == GO_TREE) {
+			if (sm->GetCurrentState() == "VillagerFull") {
+				nearest = go2;
+				sm->SetNextState("VillagerCuttingTree");
+				//go2->sm->SetNextState("CowEating")
+			}
+			//nearest = go2;
+			//sm->SetNextState("CowEating");
+		}
+		if (go2->type == GO_HOUSE) {
+			if (sm->GetCurrentState() == "VillageBringResourcesToHouse") {
+
+				sm->SetNextState("VillagerFull");
 			}
 			//nearest = go2;
 			//sm->SetNextState("CowEating");

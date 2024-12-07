@@ -50,8 +50,6 @@ public:
 class CowStateEating : public State
 {
 	GameObject* m_go;
-	//std::vector<GameObject*> m_gos;
-	GameObject* m_go2;
 	float message_elapsed;
 	float m_elapsed;
 

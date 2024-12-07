@@ -50,6 +50,33 @@ void SceneICA1::Init()
 	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 	go->target = go->pos;
 
+	Vector3 RandomPosition = Vector3(gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, 0);
+	
+	GameObject* house = FetchGO(GameObject::GO_HOUSE);
+	house->scale.Set(gridSize, gridSize, gridSize);
+	house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+	house->target = go->pos;
+	house->steps = 0;
+	//house->energy = 8.f;
+	house->nearest = NULL;
+	house->Stationary = true;
+	house->Collision = true;
+	//grass->sm->SetNextState("VillagerFull");
+	
+	for (int x = -1; x < 2; x += 2) {
+		for (int y = -1; y < 2; y += 2) {
+			GameObject* go = FetchGO(GameObject::GO_VILLAGER);
+			go->scale.Set(gridSize, gridSize, gridSize);
+			go->pos.Set(RandomPosition.x + x * gridSize, RandomPosition.y + y * gridSize, 0);
+			go->target = go->pos;
+			go->steps = 0;
+			go->energy = 8.f;
+			go->nearest = NULL;
+			go->Collision = true;
+			go->sm->SetNextState("VillagerFull");
+		}
+	}
+
 	//week 4
 	//register this scene with the "post office"
 	//post office will now be capable of addressing this scene with messages
@@ -78,6 +105,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateFull("VillagerFull", go));
 			go->sm->AddState(new VillagerStateHungry("VillagerHungry", go));
 			go->sm->AddState(new VillagerStateDead("VillagerDead", go));
+			go->sm->AddState(new VillagerStateCutTree("VillagerCuttingTree", go));
+			go->sm->AddState(new VillagerStateBringResourcesToHouse("VillageBringResourcesToHouse", go));
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 		else if (type == GameObject::GO_COW)
 		{
@@ -152,6 +181,7 @@ void SceneICA1::Update(double dt)
 		go->steps = 0;
 		go->moveSpeed = 1.0f;
 		go->energy = 8.f;
+		go->hp = 10.0f;
 		go->nearest = NULL;
 		go->sm->SetNextState("CowFull");
 		go->Collision = true;
@@ -166,6 +196,7 @@ void SceneICA1::Update(double dt)
 		go->steps = 0;
 		go->moveSpeed = 0.0f;
 		go->Stationary = true;
+		go->GridSizeMultiplier = 1.5f;
 		//go->energy = 8.f;
 		go->nearest = NULL;
 		//go->sm->SetNextState("CowFull");
@@ -367,10 +398,16 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.Rotate(180, 0, 0, 1);
 		RenderMesh(meshList[GEO_GRASS], false);
 		modelStack.PopMatrix();
-		//ss.str("");
-		//ss.precision(3);
-		//ss << go->id;
-		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_HOUSE:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x * go->GridSizeMultiplier, go->scale.y * go->GridSizeMultiplier, go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
+		RenderMesh(meshList[GEO_HOUSE], false);
+		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_TREE:
@@ -723,6 +760,16 @@ bool SceneICA1::Handle(Message* message)
 			}
 			else if (messageWRU->type == MessageWRU::NEAREST_COW &&
 				go2->type == GameObject::GO_COW)
+			{
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
+				{
+					nearestDistance = distance;
+					go->nearest = go2;
+				}
+			}
+			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE &&
+				go2->type == GameObject::GO_HOUSE)
 			{
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)

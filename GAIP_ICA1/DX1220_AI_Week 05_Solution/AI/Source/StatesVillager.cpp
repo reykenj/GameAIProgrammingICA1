@@ -28,6 +28,12 @@ void VillagerStateTooFull::Update(double dt)
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy < 10.f)
 		m_go->sm->SetNextState("VillagerFull");
+
+
+	if (m_go->hp <= 0.0f)
+	{
+		m_go->sm->SetNextState("CowDead");
+	}
 }
 
 void VillagerStateTooFull::Exit()
@@ -63,6 +69,12 @@ void VillagerStateFull::Update(double dt)
 		m_go->sm->SetNextState("VillagerTooFull");
 	else if (m_go->energy < 5.f)
 		m_go->sm->SetNextState("VillagerHungry");
+
+
+	if (m_go->hp <= 0.0f)
+	{
+		m_go->sm->SetNextState("VillagerDead");
+	}
 	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
 
 	//once nearest is set, fish will continue to move away from shark even
@@ -70,11 +82,11 @@ void VillagerStateFull::Update(double dt)
 	//TODO: consider setting nearest to nullptr if shark is "far enough"
 	if (m_go->nearest)
 	{
-		if (m_go->nearest->pos.x > m_go->pos.x)
+		if (m_go->nearest->pos.x < m_go->pos.x)
 			m_go->moveRight = false;
 		else
 			m_go->moveLeft = false;
-		if (m_go->nearest->pos.y > m_go->pos.y)
+		if (m_go->nearest->pos.y < m_go->pos.y)
 			m_go->moveUp = false;
 		else
 			m_go->moveDown = false;
@@ -90,9 +102,9 @@ void VillagerStateFull::Update(double dt)
 			//message is allocated on the heap (WARNING: expensive. 
 			//either refactor PostOffice to not assume heap-allocated messages,
 			//or pool messages to avoid real-time heap allocation)
-			const float SHARK_DIST = 10.f * SceneData::GetInstance()->GetGridSize();
+			const float TREE_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
 			PostOffice::GetInstance()->Send("Scene",
-				new MessageWRU(m_go, MessageWRU::NEAREST_SHARK, SHARK_DIST));
+				new MessageWRU(m_go, MessageWRU::NEAREST_TREE, TREE_DIST));
 		}
 	}
 }
@@ -128,7 +140,7 @@ void VillagerStateHungry::Update(double dt)
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->energy >= 5.f)
 		m_go->sm->SetNextState("VillagerFull");
-	else if (m_go->energy < 0.f)
+	else if (m_go->energy < 0.f || m_go->hp <= 0)
 	{
 		m_go->sm->SetNextState("VillagerDead");
 	}
@@ -218,3 +230,152 @@ void VillagerStateDead::Exit()
 }
 
 
+
+VillagerStateCutTree::VillagerStateCutTree(const std::string& stateID, GameObject* go) : State(stateID),
+m_go(go)
+{
+}
+
+VillagerStateCutTree::~VillagerStateCutTree()
+{
+}
+
+void VillagerStateCutTree::Enter()
+{
+	m_go->moveSpeed = 0;
+	m_go->Stationary = true;
+	m_elapsed = 3;
+	message_elapsed = MESSAGE_INTERVAL;
+}
+
+void VillagerStateCutTree::Update(double dt)
+{
+	message_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
+	bool CutTree = false;
+	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
+	if (m_go->energy < 0.f || m_go->hp <= 0.0f)
+	{
+		m_go->sm->SetNextState("VillagerDead");
+	}
+
+	if (m_go->nearest && m_go->nearest->type == GameObject::GO_TREE)
+	{
+		m_elapsed -= static_cast<float>(dt);
+		if (m_elapsed < 0)
+		{
+			m_go->nearest->active = false;
+			CutTree = true;
+		}
+		if (CutTree) {
+			m_go->sm->SetNextState("VillageBringResourcesToHouse");
+		}
+		else {
+			if (m_go->nearest->active == false) {
+				if (m_go->energy >= 5.f)
+					m_go->sm->SetNextState("VillagerFull");
+				else {
+					m_go->sm->SetNextState("VillagerHungry");
+				}
+			}
+		}
+		//else {
+		//	m_go->energy += ENERGY_DROP_RATE * static_cast<float>(dt) * 5;
+		//}
+	}
+	else {
+		if (m_elapsed >= MESSAGE_INTERVAL) //ensure at least 1 second interval between messages
+		{
+			m_elapsed -= MESSAGE_INTERVAL;
+			const float FOOD_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_TREE, FOOD_DIST));
+		}
+	}
+}
+
+void VillagerStateCutTree::Exit()
+{
+	m_go->Stationary = false;
+}
+
+VillagerStateBringResourcesToHouse::VillagerStateBringResourcesToHouse(const std::string& stateID, GameObject* go) : State(stateID),
+m_go(go)
+{
+
+}
+
+VillagerStateBringResourcesToHouse::~VillagerStateBringResourcesToHouse()
+{
+}
+
+void VillagerStateBringResourcesToHouse::Enter()
+{
+	m_go->moveSpeed = HUNGRY_SPEED;
+	m_go->Stationary = false;
+	m_go->nearest = NULL;
+	m_elapsed = MESSAGE_INTERVAL;
+}
+
+void VillagerStateBringResourcesToHouse::Update(double dt)
+{
+	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
+
+	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
+	//if (m_go->energy < 5.f)
+	//	m_go->sm->SetNextState("VillagerFull");
+	//else if (m_go->energy < 0.f || m_go->hp <= 0)
+	//{
+	//	m_go->sm->SetNextState("VillagerDead");
+	//}
+	const float tolerance = 0.5f;
+	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
+	if (m_go->nearest && m_go->nearest->active)
+	{
+		// Check x-axis movement
+		if (std::abs(m_go->nearest->pos.x - m_go->pos.x) <= tolerance)
+		{
+			m_go->moveLeft = false;
+			m_go->moveRight = false;
+		}
+		else if (m_go->nearest->pos.x > m_go->pos.x)
+		{
+			m_go->moveLeft = false;
+		}
+		else
+		{
+			m_go->moveRight = false;
+		}
+
+		// Check y-axis movement
+		if (std::abs(m_go->nearest->pos.y - m_go->pos.y) <= tolerance)
+		{
+			m_go->moveUp = false;
+			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.y > m_go->pos.y)
+		{
+			m_go->moveDown = false;
+		}
+		else
+		{
+			m_go->moveUp = false;
+		}
+	}
+	else //go->nearest is nullptr
+	{
+		if (m_elapsed >= MESSAGE_INTERVAL) //ensure at least 1 second interval between messages
+		{
+			m_elapsed -= MESSAGE_INTERVAL;
+			//week 4
+			//send message to Scene requesting for nearest to be updated
+			//message is allocated on the heap (WARNING: expensive. 
+			//either refactor PostOffice to not assume heap-allocated messages,
+			//or pool messages to avoid real-time heap allocation)
+			const float HOUSE_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_HOUSE, HOUSE_DIST));
+		}
+	}
+}
+
+void VillagerStateBringResourcesToHouse::Exit()
+{
+}

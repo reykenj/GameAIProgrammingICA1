@@ -59,4 +59,36 @@ public:
 
 };
 
+class VillagerStateCutTree : public State
+{
+	GameObject* m_go;
+	float message_elapsed;
+	float m_elapsed;
+public:
+	VillagerStateCutTree(const std::string& stateID, GameObject* go);
+	virtual ~VillagerStateCutTree();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+
+class VillagerStateBringResourcesToHouse : public State
+{
+	GameObject* m_go;
+	float message_elapsed;
+	float m_elapsed;
+public:
+	VillagerStateBringResourcesToHouse(const std::string& stateID, GameObject* go);
+	virtual ~VillagerStateBringResourcesToHouse();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+
 #endif
