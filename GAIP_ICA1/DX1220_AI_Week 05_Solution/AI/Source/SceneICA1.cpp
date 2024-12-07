@@ -86,6 +86,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new CowStateFull("CowFull", go));
 			go->sm->AddState(new CowStateHungry("CowHungry", go));
 			go->sm->AddState(new CowStateDead("CowDead", go));
+			go->sm->AddState(new CowStateEating("CowEating", go));
 		}
 		else if (type == GameObject::GO_SHARK)
 		{
@@ -136,7 +137,7 @@ void SceneICA1::Update(double dt)
 		go->steps = 0;
 		go->moveSpeed = 0;
 		go->Stationary = true;
-		go->GridSizeMultiplier = 2.0f;
+		go->GridSizeMultiplier = 1.5f;
 		//go->energy = 8.f;
 		go->nearest = NULL;
 		//go->sm->SetNextState("Full");
@@ -243,38 +244,6 @@ void SceneICA1::Update(double dt)
 		bBState = false;
 	}
 
-	//StateMachine
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject* go = (GameObject*)*it;
-		if (!go->active)
-			continue;
-		if (go->sm)
-			go->sm->Update(dt);
-	}
-
-	//do collision detection and response
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject* go = (GameObject*)*it;
-		if (!go->active)
-			continue;
-		if (go->Collision)
-		{
-			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
-			{
-				GameObject* go2 = (GameObject*)*it2;
-				if (!go2->active)
-					continue;
-
-				float distance = (go->pos - go2->pos).Length();
-				if (distance < gridSize * go->GridSizeMultiplier || distance < gridSize * go2->GridSizeMultiplier)
-				{
-					go->OnCollision(go2);
-				}
-			}
-		}
-	}
 
 	//Movement Section
 	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
@@ -310,6 +279,39 @@ void SceneICA1::Update(double dt)
 			}
 			catch (DivideByZero)
 			{
+			}
+		}
+	}
+
+	//StateMachine
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (!go->active)
+			continue;
+		if (go->sm)
+			go->sm->Update(dt);
+	}
+
+	//do collision detection and response
+	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	{
+		GameObject* go = (GameObject*)*it;
+		if (!go->active)
+			continue;
+		if (go->Collision)
+		{
+			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+			{
+				GameObject* go2 = (GameObject*)*it2;
+				if (!go2->active)
+					continue;
+
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < gridSize * go->GridSizeMultiplier || distance < gridSize * go2->GridSizeMultiplier)
+				{
+					go->OnCollision(go2);
+				}
 			}
 		}
 	}

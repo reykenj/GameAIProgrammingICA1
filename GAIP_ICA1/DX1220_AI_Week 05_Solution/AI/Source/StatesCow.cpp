@@ -193,3 +193,67 @@ void CowStateDead::Exit()
 {
 }
 
+
+CowStateEating::CowStateEating(const std::string& stateID, GameObject* go)
+	: State(stateID),
+	m_go(go)
+{
+}
+
+CowStateEating::~CowStateEating()
+{
+}
+
+void CowStateEating::Enter()
+{
+	m_go->moveSpeed = 0;
+	m_go->Stationary = true;
+	m_elapsed = 3;
+	message_elapsed = MESSAGE_INTERVAL;
+}
+
+void CowStateEating::Update(double dt)
+{
+	message_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
+
+	//m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
+	if (m_go->energy < 0.f)
+	{
+		m_go->sm->SetNextState("CowDead");
+	}
+
+	if (m_go->nearest && m_go->nearest->type == GameObject::GO_GRASS)
+	{
+		m_elapsed -= static_cast<float>(dt);
+		if (m_elapsed < 0)
+		{
+			m_go->nearest->active = false;
+		}
+		if (m_go->nearest->active == false) {
+			if (m_go->energy >= 5.f)
+				m_go->sm->SetNextState("CowFull");
+			else {
+				m_go->sm->SetNextState("CowHungry");
+			}
+		}
+		else {
+			m_go->energy += ENERGY_DROP_RATE * static_cast<float>(dt) * 5;
+		}
+	}
+	else {
+		if (m_elapsed >= MESSAGE_INTERVAL) //ensure at least 1 second interval between messages
+		{
+			m_elapsed -= MESSAGE_INTERVAL;
+			const float FOOD_DIST = 20.f * SceneData::GetInstance()->GetGridSize();
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_GRASS, FOOD_DIST));
+		}
+	}
+
+}
+
+void CowStateEating::Exit()
+{
+	m_go->Stationary = false;
+	//m_go->moveSpeed = HUNGRY_SPEED;
+	//m_go->moveSpeed = HUNGRY_SPEED;
+}

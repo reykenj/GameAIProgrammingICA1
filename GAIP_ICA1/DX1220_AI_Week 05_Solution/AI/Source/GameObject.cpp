@@ -50,8 +50,8 @@ void GameObject::OnCollision(GameObject* go2)
 {
 	if (this->type == GO_COW) {
 		if (go2->type == GO_GRASS) {
-			energy += 2.5f;
-			go2->active = false;
+			nearest = go2;
+			sm->SetNextState("CowEating");
 		}
 	}
 	return;

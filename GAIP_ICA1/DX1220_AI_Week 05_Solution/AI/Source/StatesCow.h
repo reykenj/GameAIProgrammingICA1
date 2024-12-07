@@ -3,6 +3,7 @@
 
 #include "State.h"
 #include "GameObject.h"
+#include <vector>
 
 class CowStateTooFull : public State
 {
@@ -39,6 +40,24 @@ class CowStateHungry : public State
 public:
 	CowStateHungry(const std::string& stateID, GameObject* go);
 	virtual ~CowStateHungry();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+class CowStateEating : public State
+{
+	GameObject* m_go;
+	//std::vector<GameObject*> m_gos;
+	GameObject* m_go2;
+	float message_elapsed;
+	float m_elapsed;
+
+public:
+	CowStateEating(const std::string& stateID, GameObject* go);
+	virtual ~CowStateEating();
 
 	virtual void Enter();
 	virtual void Update(double dt);
