@@ -107,3 +107,17 @@ void SceneData::AddFoodEnergyCount(const float AdditionalFood, bool RED)
 		TotalFoodEnergyBLUE += AdditionalFood;
 	}
 }
+
+bool SceneData::CheckWithinGrid(float x, float y, float z) {
+	float gridSize = SceneData::GetInstance()->GetGridSize();
+	float gridOffset = SceneData::GetInstance()->GetGridOffset();
+	int numGrid = SceneData::GetInstance()->GetNumGrid();
+
+	float MinGridPosX = gridOffset + 0 * gridSize;
+	float MinGridPosY = gridOffset + 0 * gridSize;
+	float MaxGridPosX = gridOffset + (numGrid - 1) * gridSize;
+	float MaxGridPosY = gridOffset + (numGrid - 1) * gridSize;
+
+
+	return (x > MinGridPosX && y > MinGridPosY) && (x < MaxGridPosX && y < MaxGridPosY);
+}

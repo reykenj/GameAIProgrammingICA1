@@ -34,6 +34,7 @@ protected:
 	float TreeSpawnMaxTime;
 	float CowSpawnMaxTime;
 	float currentTime;
+	float HouseWoodCost = 25.0f;
 	int m_numGO[GameObject::GO_TOTAL];
 	float zOffset;
 };

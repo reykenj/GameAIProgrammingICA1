@@ -3,6 +3,7 @@
 
 #include "SingletonTemplate.h"
 
+
 class SceneData : public Singleton<SceneData>
 {
 	friend Singleton<SceneData>;
@@ -30,6 +31,8 @@ public:
 
 	float GetFoodEnergyCount(bool RED) const;
 	void AddFoodEnergyCount(const float AdditionalFood, bool RED);
+
+	bool CheckWithinGrid(float x, float y, float z);
 
 private:
 	SceneData();

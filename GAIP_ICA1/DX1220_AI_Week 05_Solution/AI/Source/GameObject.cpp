@@ -1,6 +1,7 @@
 #include "GameObject.h"
 #include "ConcreteMessages.h"
 #include "SceneData.h"
+#include "PostOffice.h"
 
 GameObject::GameObject(GAMEOBJECT_TYPE typeValue) 
 	: type(typeValue),
@@ -86,6 +87,11 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 				sm->SetNextState("VillagerFull");
 				SceneData::GetInstance()->AddWoodCount(WoodCollected, RED);
 				SceneData::GetInstance()->AddFoodEnergyCount(FoodEnergyCollected, RED);
+
+				if (SceneData::GetInstance()->GetWoodCount(RED) > 1){
+					SceneData::GetInstance()->AddWoodCount(-1, RED);
+					PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_HOUSE, 1.0f));
+				}
 				WoodCollected = 0;
 				FoodEnergyCollected = 0;
 			}
@@ -110,6 +116,49 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 			else {
 				Stationary = false;
 			}
+		}
+	}
+
+	else if (this->type == GO_HOUSE) {
+		if (this != go2 && go2->type == GO_HOUSE) {
+			Vector3 SpawnPosition;
+			float gridSize = SceneData::GetInstance()->GetGridSize();
+			float gridOffset = SceneData::GetInstance()->GetGridOffset();
+			int numGrid = SceneData::GetInstance()->GetNumGrid();
+			bool SpawnLeft;
+			bool SpawnRight;
+			bool SpawnTop;
+			bool SpawnBottom;
+
+			SpawnLeft = SpawnRight = SpawnTop = SpawnBottom = false;
+			Vector3 temp = pos + Vector3(gridSize, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnRight = true;
+			}
+			temp = pos + Vector3(-gridSize, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnLeft = true;
+			}
+			temp = pos + Vector3(0, gridSize, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnTop = true;
+			}
+			temp = pos + Vector3(0, -gridSize, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnBottom = true;
+			}
+
+
+			float random = Math::RandFloatMinMax(0.f, 1.f);
+			if (random < 0.25f && SpawnRight)
+				SpawnPosition = pos + Vector3(gridSize, 0, 0);
+			else if (random < 0.5f && SpawnLeft)
+				SpawnPosition = pos + Vector3(-gridSize, 0, 0);
+			else if (random < 0.75f && SpawnTop)
+				SpawnPosition = pos + Vector3(0, gridSize, 0);
+			else if (SpawnBottom)
+				SpawnPosition = pos + Vector3(0, -gridSize, 0);
+			go2->pos = SpawnPosition;
 		}
 	}
 	return;

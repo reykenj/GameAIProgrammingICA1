@@ -334,16 +334,16 @@ void SceneICA1::Update(double dt)
 		if (go->sm)
 			go->sm->Update(dt);
 	}
-
+	std::vector<GameObject*> templist = m_goList;
 	//do collision detection and response
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	for (std::vector<GameObject*>::iterator it = templist.begin(); it != templist.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
 			continue;
 		if (go->Collision)
 		{
-			for (std::vector<GameObject*>::iterator it2 = m_goList.begin(); it2 != m_goList.end(); ++it2)
+			for (std::vector<GameObject*>::iterator it2 = templist.begin(); it2 != templist.end(); ++it2)
 			{
 				GameObject* go2 = (GameObject*)*it2;
 				if (!go2->active)
@@ -453,7 +453,7 @@ void SceneICA1::RenderGO(GameObject* go)
 	case GameObject::GO_HOUSE:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
-		modelStack.Scale(go->scale.x * go->GridSizeMultiplier, go->scale.y * go->GridSizeMultiplier, go->scale.z);
+		modelStack.Scale(go->scale.x * go->GridSizeMultiplier * (go->hp / go->Maxhp), go->scale.y * go->GridSizeMultiplier * (go->hp / go->Maxhp), go->scale.z);
 		modelStack.PushMatrix();
 		modelStack.Rotate(180, 0, 0, 1);
 		RenderMesh(meshList[GEO_HOUSE], false);
@@ -846,6 +846,61 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
+		}
+		if (messageWRU->type == MessageWRU::SPAWN_HOUSE)
+		{
+			std::cout << "Making HouseStart " << std::endl;
+			Vector3 SpawnPosition;
+			float gridSize = SceneData::GetInstance()->GetGridSize();
+			float gridOffset = SceneData::GetInstance()->GetGridOffset();
+			int numGrid = SceneData::GetInstance()->GetNumGrid();
+			bool SpawnLeft;
+			bool SpawnRight;
+			bool SpawnTop;
+			bool SpawnBottom;
+
+			SpawnLeft = SpawnRight = SpawnTop = SpawnBottom = false;
+			Vector3 temp = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnRight = true;
+			}
+			temp = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnLeft = true;
+			}
+			temp = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnTop = true;
+			}
+			temp = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnBottom = true;
+			}
+
+
+			float random = Math::RandFloatMinMax(0.f, 1.f);
+			if (random < 0.25f && SpawnRight)
+				SpawnPosition = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.5f && SpawnLeft)
+				SpawnPosition = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.75f && SpawnTop)
+				SpawnPosition = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			else if (SpawnBottom)
+				SpawnPosition = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+
+
+			GameObject* house = FetchGO(GameObject::GO_HOUSE);
+			house->scale.Set(gridSize, gridSize, gridSize);
+			house->pos.Set(SpawnPosition.x, SpawnPosition.y, SpawnPosition.z);
+			house->target = go->pos;
+			house->steps = 0;
+			//house->energy = 8.f;
+			house->nearest = NULL;
+			house->Stationary = true;
+			house->Collision = true;
+
+			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+			std::cout << "Making House " << std::endl;
 		}
 
 		delete message; //remember, the message is allocated on the heap!
