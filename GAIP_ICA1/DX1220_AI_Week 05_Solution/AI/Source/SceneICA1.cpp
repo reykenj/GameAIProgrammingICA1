@@ -74,6 +74,7 @@ void SceneICA1::Init()
 				go->steps = 0;
 				//go->energy = 8.f;
 				go->nearest = NULL;
+				go->nearestEnemy = NULL;
 				go->Collision = true;
 				go->sm->SetNextState("VillagerFull");
 			}
@@ -105,6 +106,7 @@ void SceneICA1::Init()
 				go->steps = 0;
 				//go->energy = 8.f;
 				go->nearest = NULL;
+				go->nearestEnemy = NULL;
 				go->Collision = true;
 				go->RED = true;
 				go->sm->SetNextState("VillagerFull");
@@ -170,6 +172,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->active = true;
 			go->hp = go->Maxhp;
 			go->energy = go->Maxenergy;
+			go->WoodCollected = 0;
+			go->FoodEnergyCollected = 0;
 			return go;
 		}
 	}
@@ -186,6 +190,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateDead("VillagerDead", go));
 			go->sm->AddState(new VillagerStateCutTree("VillagerCuttingTree", go));
 			go->sm->AddState(new VillagerStateGoToHouse("VillagerGoToHouse", go));
+			go->sm->AddState(new VillagerChaseOps("VillagerChaseOps", go));
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
@@ -862,7 +867,7 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
-			else if (messageWRU->type == MessageWRU::NEAREST_TREE &&
+			else if (messageWRU->type == MessageWRU::NEAREST_TREE_VILLAGER &&
 				go2->type == GameObject::GO_TREE)
 			{
 				float distance = (go->pos - go2->pos).Length();
@@ -882,6 +887,18 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
+			else if (messageWRU->type == MessageWRU::NEAREST_VILLAGER_OPS &&
+				go2->type == GameObject::GO_VILLAGER && go->RED != go2->RED)
+			{
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
+				{
+					nearestDistance = distance;
+					go->nearestEnemy = go2;
+					std::cout << "FOUND ENEMY" << std::endl;
+				}
+				//std::cout << "Searching for Villager OPS" << std::endl;
+			}
 			else if (messageWRU->type == MessageWRU::NEAREST_COW &&
 				go2->type == GameObject::GO_COW)
 			{
@@ -892,7 +909,7 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
-			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE &&
+			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE_VILLAGER &&
 				go2->type == GameObject::GO_HOUSE && go->RED == go2->RED)
 			{
 
@@ -906,7 +923,7 @@ bool SceneICA1::Handle(Message* message)
 		}
 		if (messageWRU->type == MessageWRU::SPAWN_HOUSE)
 		{
-			std::cout << "Making HouseStart " << std::endl;
+			//std::cout << "Making HouseStart " << std::endl;
 			Vector3 SpawnPosition;
 			bool SpawnLeft;
 			bool SpawnRight;
@@ -955,7 +972,7 @@ bool SceneICA1::Handle(Message* message)
 			house->Collision = true;
 
 			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
-			std::cout << "Making House " << std::endl;
+			//std::cout << "Making House " << std::endl;
 		}
 
 		else if (messageWRU->type == MessageWRU::SPAWN_VILLAGER)
@@ -967,6 +984,7 @@ bool SceneICA1::Handle(Message* message)
 			villager->RED = go->RED;
 			villager->steps = 0;
 			villager->nearest = NULL;
+			villager->nearestEnemy = NULL;
 			villager->Collision = true;
 			villager->sm->SetNextState("VillagerFull");
 		}

@@ -12,6 +12,7 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	energy(10.f),
 	sm(NULL),
 	nearest(NULL),
+	nearestEnemy(NULL),
 	hp(10.f)
 {
 	static int count = 0;
@@ -102,15 +103,15 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 					Stationary = true;
 					if (hp < Maxhp) {
 						hp += dt * RecoverySpeed;
-						std::cout << "HP RECOVER" << std::endl;
+						//std::cout << "HP RECOVER" << std::endl;
 					}
 					if (SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy) {
 						SceneData::GetInstance()->AddFoodEnergyCount(-dt * RecoverySpeed, RED);
 						energy += dt * RecoverySpeed;
-						std::cout << "ENERGY RECOVER" << std::endl;
+						//std::cout << "ENERGY RECOVER" << std::endl;
 						if (energy > 8.0f) {
 							Hungry = false;
-							std::cout << "ENERGY RECOVER111111111" << std::endl;
+							//std::cout << "ENERGY RECOVER111111111" << std::endl;
 						}
 					}
 				}

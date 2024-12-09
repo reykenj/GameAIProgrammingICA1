@@ -47,6 +47,7 @@ struct GameObject : public ObjectBase
 	float moveSpeed;
 	float countDown;
 	GameObject *nearest;
+	GameObject *nearestEnemy;
 	bool moveLeft;
 	bool moveRight;
 	bool moveUp;

@@ -21,6 +21,8 @@ class VillagerStateFull : public State
 {
 	GameObject* m_go;
 	float m_elapsed;
+
+	float enemy_elasped;
 public:
 	VillagerStateFull(const std::string& stateID, GameObject* go);
 	virtual ~VillagerStateFull();
@@ -35,6 +37,8 @@ class VillagerStateHungry : public State
 {
 	GameObject* m_go;
 	float m_elapsed;
+
+	float enemy_elasped;
 
 public:
 	VillagerStateHungry(const std::string& stateID, GameObject* go);
@@ -61,6 +65,8 @@ public:
 
 class VillagerStateCutTree : public State
 {
+	float enemy_elasped;
+
 	GameObject* m_go;
 	float message_elapsed;
 	float m_elapsed;
@@ -83,6 +89,21 @@ class VillagerStateGoToHouse : public State
 public:
 	VillagerStateGoToHouse(const std::string& stateID, GameObject* go);
 	virtual ~VillagerStateGoToHouse();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+class VillagerChaseOps : public State
+{
+	GameObject* m_go;
+	float message_elapsed;
+	float m_elapsed;
+public:
+	VillagerChaseOps(const std::string& stateID, GameObject* go);
+	virtual ~VillagerChaseOps();
 
 	virtual void Enter();
 	virtual void Update(double dt);
