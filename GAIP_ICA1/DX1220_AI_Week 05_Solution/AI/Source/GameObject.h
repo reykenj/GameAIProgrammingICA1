@@ -55,6 +55,7 @@ struct GameObject : public ObjectBase
 	StateMachine *sm;
 	bool Stationary;
 	bool Collision;
+	bool Fightable = true;
 	float GridSizeMultiplier;
 
 	bool RED;

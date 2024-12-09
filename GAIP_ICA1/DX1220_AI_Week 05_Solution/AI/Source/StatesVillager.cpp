@@ -452,6 +452,7 @@ void VillagerChaseOps::Update(double dt)
 	std::cout << "ChaseOps" << std::endl;
 	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 
+	m_go->Stationary = false;
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 
 	const float tolerance = 0.5f;
@@ -462,7 +463,7 @@ void VillagerChaseOps::Update(double dt)
 		m_go->sm->SetNextState("VillagerDead");
 	}
 
-	if (m_go->nearestEnemy && m_go->nearestEnemy->active)
+	if (m_go->nearestEnemy && m_go->nearestEnemy->active && m_go->nearestEnemy->Fightable)
 	{
 
 		// Check x-axis movement
@@ -503,6 +504,7 @@ void VillagerChaseOps::Update(double dt)
 		else{
 			m_go->sm->SetNextState("VillagerFull");
 		}
+		m_go->nearestEnemy = NULL;
 	}
 }
 

@@ -382,6 +382,8 @@ void SceneICA1::Update(double dt)
 			continue;
 		if (go->sm)
 			go->sm->Update(dt);
+
+		go->Fightable = true;
 	}
 	//do collision detection and response
 	for (std::vector<GameObject*>::iterator it = templist.begin(); it != templist.end(); ++it)
@@ -888,7 +890,7 @@ bool SceneICA1::Handle(Message* message)
 				}
 			}
 			else if (messageWRU->type == MessageWRU::NEAREST_VILLAGER_OPS &&
-				go2->type == GameObject::GO_VILLAGER && go->RED != go2->RED)
+				go2->type == GameObject::GO_VILLAGER && go->RED != go2->RED && go2->Fightable)
 			{
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)

@@ -85,6 +85,7 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 		}
 		if (go2->type == GO_HOUSE) {
 			if (RED == go2->RED) {
+				Fightable = false;
 				if (sm->GetCurrentState() == "VillagerGoToHouse") {
 					sm->SetNextState("VillagerFull");
 					SceneData::GetInstance()->AddWoodCount(WoodCollected, RED);
@@ -105,7 +106,7 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 						hp += dt * RecoverySpeed;
 						//std::cout << "HP RECOVER" << std::endl;
 					}
-					if (SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy) {
+					if (SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy && Hungry) {
 						SceneData::GetInstance()->AddFoodEnergyCount(-dt * RecoverySpeed, RED);
 						energy += dt * RecoverySpeed;
 						//std::cout << "ENERGY RECOVER" << std::endl;
@@ -119,6 +120,22 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 					Stationary = false;
 				}
 			}
+		}
+
+
+		if ((hp > 0 && go2->hp > 0) && go2->type == GO_VILLAGER && RED != go2->RED) {
+			if (sm->GetCurrentState() == "VillagerChaseOps") {
+				go2->hp--;
+				Stationary = true;
+				if (go2->hp <= 0) {
+					WoodCollected += 3.5f + go2->WoodCollected;
+					FoodEnergyCollected += 3.5f + go2->FoodEnergyCollected;
+					//energy += 1.5f;
+				}
+				//go2->sm->SetNextState("CowEating")
+			}
+			//nearest = go2;
+			//sm->SetNextState("CowEating");
 		}
 	}
 
