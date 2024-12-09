@@ -83,38 +83,40 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 			//sm->SetNextState("CowEating");
 		}
 		if (go2->type == GO_HOUSE) {
-			if (sm->GetCurrentState() == "VillagerGoToHouse") {
-				sm->SetNextState("VillagerFull");
-				SceneData::GetInstance()->AddWoodCount(WoodCollected, RED);
-				SceneData::GetInstance()->AddFoodEnergyCount(FoodEnergyCollected, RED);
+			if (RED == go2->RED) {
+				if (sm->GetCurrentState() == "VillagerGoToHouse") {
+					sm->SetNextState("VillagerFull");
+					SceneData::GetInstance()->AddWoodCount(WoodCollected, RED);
+					SceneData::GetInstance()->AddFoodEnergyCount(FoodEnergyCollected, RED);
 
-				if (SceneData::GetInstance()->GetWoodCount(RED) > 1){
-					SceneData::GetInstance()->AddWoodCount(-1, RED);
-					PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_HOUSE, 1.0f));
+					if (SceneData::GetInstance()->GetWoodCount(RED) > 5.0f) {
+						SceneData::GetInstance()->AddWoodCount(-5.0f, RED);
+						PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_HOUSE, 1.0f));
+					}
+					WoodCollected = 0;
+					FoodEnergyCollected = 0;
 				}
-				WoodCollected = 0;
-				FoodEnergyCollected = 0;
-			}
 
-			if ((SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy && Hungry) || hp < Maxhp) {
-				float RecoverySpeed = 5.0f;
-				Stationary = true;
-				if (hp < Maxhp) {
-					hp += dt * RecoverySpeed;
-					std::cout << "HP RECOVER" << std::endl;
-				}
-				if (SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy) {
-					SceneData::GetInstance()->AddFoodEnergyCount(-dt * RecoverySpeed, RED);
-					energy += dt * RecoverySpeed;
-					std::cout << "ENERGY RECOVER" << std::endl;
-					if (energy > 8.0f) {
-						Hungry = false;
-						std::cout << "ENERGY RECOVER111111111" << std::endl;
+				if ((SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy && Hungry) || hp < Maxhp) {
+					float RecoverySpeed = 5.0f;
+					Stationary = true;
+					if (hp < Maxhp) {
+						hp += dt * RecoverySpeed;
+						std::cout << "HP RECOVER" << std::endl;
+					}
+					if (SceneData::GetInstance()->GetFoodEnergyCount(RED) >= Maxenergy - energy) {
+						SceneData::GetInstance()->AddFoodEnergyCount(-dt * RecoverySpeed, RED);
+						energy += dt * RecoverySpeed;
+						std::cout << "ENERGY RECOVER" << std::endl;
+						if (energy > 8.0f) {
+							Hungry = false;
+							std::cout << "ENERGY RECOVER111111111" << std::endl;
+						}
 					}
 				}
-			}
-			else {
-				Stationary = false;
+				else {
+					Stationary = false;
+				}
 			}
 		}
 	}

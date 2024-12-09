@@ -5,6 +5,7 @@
 #include "StatesVillager.h"
 #include "StatesCow.h"
 #include "StatesShark.h"
+#include "StatesHouse.h"
 #include "SceneData.h"
 #include "PostOffice.h"
 #include "ConcreteMessages.h"
@@ -50,30 +51,64 @@ void SceneICA1::Init()
 	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 	go->target = go->pos;
 
-	Vector3 RandomPosition = Vector3(gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, 0);
+	{
+		Vector3 RandomPosition = Vector3(gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, 0);
 	
-	GameObject* house = FetchGO(GameObject::GO_HOUSE);
-	house->scale.Set(gridSize, gridSize, gridSize);
-	house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
-	house->target = go->pos;
-	house->steps = 0;
-	//house->energy = 8.f;
-	house->nearest = NULL;
-	house->Stationary = true;
-	house->Collision = true;
-	//grass->sm->SetNextState("VillagerFull");
-	
-	for (int x = -1; x < 2; x += 2) {
-		for (int y = -1; y < 2; y += 2) {
-			GameObject* go = FetchGO(GameObject::GO_VILLAGER);
-			go->scale.Set(gridSize, gridSize, gridSize);
-			go->pos.Set(RandomPosition.x + x * gridSize, RandomPosition.y + y * gridSize, 0);
-			go->target = go->pos;
-			go->steps = 0;
-			//go->energy = 8.f;
-			go->nearest = NULL;
-			go->Collision = true;
-			go->sm->SetNextState("VillagerFull");
+		GameObject* house = FetchGO(GameObject::GO_HOUSE);
+		house->scale.Set(gridSize, gridSize, gridSize);
+		house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		house->target = go->pos;
+		house->steps = 0;
+		//house->energy = 8.f;
+		house->nearest = NULL;
+		house->Stationary = true;
+		house->Collision = true;
+		//grass->sm->SetNextState("VillagerFull");
+
+		for (int x = -1; x < 2; x += 2) {
+			for (int y = -1; y < 2; y += 2) {
+				GameObject* go = FetchGO(GameObject::GO_VILLAGER);
+				go->scale.Set(gridSize, gridSize, gridSize);
+				go->pos.Set(RandomPosition.x + x * gridSize, RandomPosition.y + y * gridSize, 0);
+				go->target = go->pos;
+				go->steps = 0;
+				//go->energy = 8.f;
+				go->nearest = NULL;
+				go->Collision = true;
+				go->sm->SetNextState("VillagerFull");
+			}
+		}
+	}
+
+
+	{
+		Vector3 RandomPosition = Vector3(gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, 0);
+
+		GameObject* house = FetchGO(GameObject::GO_HOUSE);
+		house->scale.Set(gridSize, gridSize, gridSize);
+		house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		house->target = go->pos;
+		house->steps = 0;
+		//house->energy = 8.f;
+		house->nearest = NULL;
+		house->Stationary = true;
+		house->Collision = true;
+		house->RED = true;
+		//grass->sm->SetNextState("VillagerFull");
+
+		for (int x = -1; x < 2; x += 2) {
+			for (int y = -1; y < 2; y += 2) {
+				GameObject* go = FetchGO(GameObject::GO_VILLAGER);
+				go->scale.Set(gridSize, gridSize, gridSize);
+				go->pos.Set(RandomPosition.x + x * gridSize, RandomPosition.y + y * gridSize, 0);
+				go->target = go->pos;
+				go->steps = 0;
+				//go->energy = 8.f;
+				go->nearest = NULL;
+				go->Collision = true;
+				go->RED = true;
+				go->sm->SetNextState("VillagerFull");
+			}
 		}
 	}
 
@@ -171,6 +206,14 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new StateCrazy("Crazy", go));
 			go->sm->AddState(new StateNaughty("Naughty", go));
 			go->sm->AddState(new StateHappy("Happy", go));
+			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
+		}
+		else if (type == GameObject::GO_HOUSE)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new HouseStateSpawner("HouseSpawner", go));
+			go->sm->SetNextState("HouseSpawner");
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		}
@@ -325,8 +368,9 @@ void SceneICA1::Update(double dt)
 		bBState = false;
 	}
 
+	std::vector<GameObject*> templist = m_goList;
 	//StateMachine
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	for (std::vector<GameObject*>::iterator it = templist.begin(); it != templist.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
@@ -334,7 +378,6 @@ void SceneICA1::Update(double dt)
 		if (go->sm)
 			go->sm->Update(dt);
 	}
-	std::vector<GameObject*> templist = m_goList;
 	//do collision detection and response
 	for (std::vector<GameObject*>::iterator it = templist.begin(); it != templist.end(); ++it)
 	{
@@ -359,7 +402,7 @@ void SceneICA1::Update(double dt)
 	}
 
 	//Movement Section
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	for (std::vector<GameObject*>::iterator it = templist.begin(); it != templist.end(); ++it)
 	{
 		GameObject* go = (GameObject*)*it;
 		if (!go->active)
@@ -407,7 +450,7 @@ void SceneICA1::Update(double dt)
 	MessageCheckFish msgCheckFish = MessageCheckFish();
 	MessageCheckFood msgCheckFood = MessageCheckFood();
 	MessageCheckShark msgCheckShark = MessageCheckShark();
-	for (GameObject* go : m_goList)
+	for (GameObject* go : templist)
 	{
 		//since PostOffice does not support sending to multiple observers under
 		//a single key, we opt for this approach
@@ -457,6 +500,16 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PushMatrix();
 		modelStack.Rotate(180, 0, 0, 1);
 		RenderMesh(meshList[GEO_HOUSE], false);
+		modelStack.PopMatrix();
+		// TO Distinguish between each other
+		modelStack.PushMatrix();
+		modelStack.Rotate(0, 0, 0, 1);
+		modelStack.Scale(0.75f, 0.75f, go->scale.z);
+		if (go->RED)
+			RenderMesh(meshList[GEO_BALL], false);
+		else {
+			RenderMesh(meshList[GEO_BLUE_BALL], false);
+		}
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
@@ -759,6 +812,9 @@ bool SceneICA1::Handle(Message* message)
 	MessageWRU* messageWRU = dynamic_cast<MessageWRU*>(message);
 	if (messageWRU)
 	{
+		float gridSize = SceneData::GetInstance()->GetGridSize();
+		float gridOffset = SceneData::GetInstance()->GetGridOffset();
+		int numGrid = SceneData::GetInstance()->GetNumGrid();
 		//get pointer to the entity who fired the event
 		//a FISH looking for fish food OR SHARK looking for fish etc.
 		GameObject* go = messageWRU->go;
@@ -837,8 +893,9 @@ bool SceneICA1::Handle(Message* message)
 				}
 			}
 			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE &&
-				go2->type == GameObject::GO_HOUSE)
+				go2->type == GameObject::GO_HOUSE && go->RED == go2->RED)
 			{
+
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)
 				{
@@ -851,9 +908,6 @@ bool SceneICA1::Handle(Message* message)
 		{
 			std::cout << "Making HouseStart " << std::endl;
 			Vector3 SpawnPosition;
-			float gridSize = SceneData::GetInstance()->GetGridSize();
-			float gridOffset = SceneData::GetInstance()->GetGridOffset();
-			int numGrid = SceneData::GetInstance()->GetNumGrid();
 			bool SpawnLeft;
 			bool SpawnRight;
 			bool SpawnTop;
@@ -894,6 +948,7 @@ bool SceneICA1::Handle(Message* message)
 			house->pos.Set(SpawnPosition.x, SpawnPosition.y, SpawnPosition.z);
 			house->target = go->pos;
 			house->steps = 0;
+			house->RED = go->RED;
 			//house->energy = 8.f;
 			house->nearest = NULL;
 			house->Stationary = true;
@@ -901,6 +956,19 @@ bool SceneICA1::Handle(Message* message)
 
 			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 			std::cout << "Making House " << std::endl;
+		}
+
+		else if (messageWRU->type == MessageWRU::SPAWN_VILLAGER)
+		{
+			GameObject* villager = FetchGO(GameObject::GO_VILLAGER);
+			villager->scale.Set(gridSize, gridSize, gridSize);
+			villager->pos.Set(go->pos.x , go->pos.y, go->pos.z);
+			villager->target = villager->pos;
+			villager->RED = go->RED;
+			villager->steps = 0;
+			villager->nearest = NULL;
+			villager->Collision = true;
+			villager->sm->SetNextState("VillagerFull");
 		}
 
 		delete message; //remember, the message is allocated on the heap!

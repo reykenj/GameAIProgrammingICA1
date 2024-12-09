@@ -80,7 +80,7 @@ void VillagerStateFull::Update(double dt)
 	//once nearest is set, fish will continue to move away from shark even
 	//when they have move significantly far away (until it changes state).
 	//TODO: consider setting nearest to nullptr if shark is "far enough"
-	if (m_go->nearest)
+	if (m_go->nearest && m_go->nearest->active)
 	{
 		if (m_go->nearest->pos.x < m_go->pos.x)
 			m_go->moveRight = false;
