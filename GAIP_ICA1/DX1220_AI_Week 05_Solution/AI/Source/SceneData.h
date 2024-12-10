@@ -34,6 +34,16 @@ public:
 
 	bool CheckWithinGrid(float x, float y, float z);
 
+	enum BUILDING_TYPE
+	{
+		BT_HOUSE,
+		BT_TURRET,
+		BT_TOTAL, //must be last
+	};
+	BUILDING_TYPE RollRandomBuildingType();
+	BUILDING_TYPE GetBuildingType(bool RED) const;
+	void SetBuildingType(BUILDING_TYPE newtype, bool RED);
+
 private:
 	SceneData();
 	~SceneData();
@@ -44,13 +54,14 @@ private:
 	float m_gridSize;
 	float m_gridOffset;
 
-
-
 	float TotalWoodRED = 0;
 	float TotalFoodEnergyRED = 0;
 
 	float TotalWoodBLUE = 0;
 	float TotalFoodEnergyBLUE = 0;
+
+	BUILDING_TYPE btRED;
+	BUILDING_TYPE btBLUE;
 };
 
 #endif

@@ -151,6 +151,7 @@
     <ClCompile Include="Source\StatesHouse.cpp" />
     <ClCompile Include="Source\StatesShark.cpp" />
     <ClCompile Include="Source\StatesVillager.cpp" />
+    <ClCompile Include="Source\StateTurret.cpp" />
     <ClCompile Include="Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -182,6 +183,7 @@
     <ClInclude Include="Source\StatesHouse.h" />
     <ClInclude Include="Source\StatesShark.h" />
     <ClInclude Include="Source\StatesVillager.h" />
+    <ClInclude Include="Source\StateTurret.h" />
     <ClInclude Include="Source\Utility.h" />
     <ClInclude Include="Source\Vertex.h" />
   </ItemGroup>

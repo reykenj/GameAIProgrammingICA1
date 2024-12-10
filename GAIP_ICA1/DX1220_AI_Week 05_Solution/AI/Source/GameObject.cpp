@@ -23,7 +23,10 @@ GameObject::GameObject(GAMEOBJECT_TYPE typeValue)
 	GridSizeMultiplier = 1.0f;
 	WoodCollected = 0;
 	FoodEnergyCollected = 0;
+	Shots = 0;
 	RED = false;
+	BuildingDestroyer = false;
+	Building = false;
 }
 
 GameObject::~GameObject()
@@ -47,6 +50,13 @@ bool GameObject::Handle(Message* message)
 		return active && type == GameObject::GO_FISHFOOD;
 	else if (dynamic_cast<MessageCheckShark*>(message) != nullptr)
 		return active && type == GameObject::GO_SHARK;
+	else if (MessageHurtEntity* hurtMessage = dynamic_cast<MessageHurtEntity*>(message))
+	{
+		std::cout << "Damage: " << std::endl;
+		std::cout << hurtMessage->damage << std::endl;
+		hp -= hurtMessage->damage;
+		return true;
+	}
 
 	//note: pardon the inconsistency(when compared to SceneMovement's Handle)
 	//we do NOT want to create a new message on the heap PER object for performance reasons
@@ -93,7 +103,14 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 
 					if (SceneData::GetInstance()->GetWoodCount(RED) > 5.0f) {
 						SceneData::GetInstance()->AddWoodCount(-5.0f, RED);
-						PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_HOUSE, 1.0f));
+						SceneData::BUILDING_TYPE BT = SceneData::GetInstance()->GetBuildingType(RED);
+						if (BT == SceneData::BT_HOUSE) {
+							PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_HOUSE, 1.0f));
+						}
+						else if(BT == SceneData::BT_TURRET){
+							PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_TURRET, 1.0f));
+						}
+						SceneData::GetInstance()->SetBuildingType(SceneData::GetInstance()->RollRandomBuildingType(), RED);
 					}
 					WoodCollected = 0;
 					FoodEnergyCollected = 0;
@@ -139,8 +156,8 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 		}
 	}
 
-	else if (this->type == GO_HOUSE) {
-		if (this != go2 && go2->type == GO_HOUSE) {
+	else if (this->type >= GO_HOUSE && go2->type < GO_BLACK) {
+		if (this != go2 && go2->type >= GO_HOUSE && go2->type < GO_BLACK) {
 			Vector3 SpawnPosition;
 			float gridSize = SceneData::GetInstance()->GetGridSize();
 			float gridOffset = SceneData::GetInstance()->GetGridOffset();

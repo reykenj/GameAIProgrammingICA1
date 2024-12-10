@@ -4,6 +4,7 @@
 #include <sstream>
 #include "StatesVillager.h"
 #include "StatesCow.h"
+#include "StateTurret.h"
 #include "StatesShark.h"
 #include "StatesHouse.h"
 #include "SceneData.h"
@@ -95,6 +96,18 @@ void SceneICA1::Init()
 		house->Stationary = true;
 		house->Collision = true;
 		house->RED = true;
+
+		//GameObject* turret = FetchGO(GameObject::GO_TURRET);
+		//turret->scale.Set(gridSize, gridSize, gridSize);
+		//turret->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		//turret->target = go->pos;
+		//turret->steps = 0;
+		////house->energy = 8.f;
+		//turret->nearest = NULL;
+		//turret->Stationary = true;
+		//turret->Collision = true;
+		//turret->RED = true;
+
 		//grass->sm->SetNextState("VillagerFull");
 
 		for (int x = -1; x < 2; x += 2) {
@@ -155,7 +168,8 @@ void SceneICA1::Init()
 	}
 	
 
-
+	SceneData::GetInstance()->SetBuildingType(SceneData::GetInstance()->RollRandomBuildingType(), true);
+	SceneData::GetInstance()->SetBuildingType(SceneData::GetInstance()->RollRandomBuildingType(), false);
 	//week 4
 	//register this scene with the "post office"
 	//post office will now be capable of addressing this scene with messages
@@ -174,6 +188,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->energy = go->Maxenergy;
 			go->WoodCollected = 0;
 			go->FoodEnergyCollected = 0;
+			go->Shots = 0;
 			return go;
 		}
 	}
@@ -181,6 +196,8 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 	{
 		GameObject* go = new GameObject(type);
 		m_goList.push_back(go);
+		go->Building = false;
+		go->BuildingDestroyer = false;
 		if (type == GameObject::GO_VILLAGER)
 		{
 			go->sm = new StateMachine();
@@ -220,6 +237,19 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new HouseStateSpawner("HouseSpawner", go));
 			go->sm->SetNextState("HouseSpawner");
 			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
+			go->Building = true;
+		}
+		else if (type == GameObject::GO_TURRET)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new TurretStateStandby("TurretStandby", go));
+			go->sm->AddState(new TurretStateShooting("TurretShooting", go));
+			go->sm->AddState(new TurretStateOverheat("TurretOverheat", go));
+			go->sm->AddState(new TurretStateDead("TurretDead", go));
+			go->sm->SetNextState("TurretStandby");
+
+			//go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		}
 	}
@@ -517,6 +547,70 @@ void SceneICA1::RenderGO(GameObject* go)
 		else {
 			RenderMesh(meshList[GEO_BLUE_BALL], false);
 		}
+		modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_TURRET:
+		{
+		const int offset = 0;
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+		modelStack.Scale(go->scale.x - offset, go->scale.y - offset, go->scale.z);
+		modelStack.PushMatrix();
+		const Vector3 displacement = go->target - go->pos;
+		modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)) + 90, 0, 0, 1);
+		}
+
+		if (go->sm)
+		{
+			if (go->sm->GetCurrentState() == "TurretStandby")
+				RenderMesh(meshList[GEO_STANDBY_TURRET], false);
+			else if (go->sm->GetCurrentState() == "TurretShooting")
+				RenderMesh(meshList[GEO_SHOOTING_TURRET], false);
+			else if (go->sm->GetCurrentState() == "TurretOverheat")
+				RenderMesh(meshList[GEO_OVERHEAT_TURRET], false);
+			else
+				RenderMesh(meshList[GEO_OVERHEAT_TURRET], false);
+		}
+		{
+			modelStack.PopMatrix();
+
+			if (go->sm->GetCurrentState() == "TurretShooting") {
+				modelStack.PushMatrix();
+				const Vector3 displacement = go->target - go->pos;
+				modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);
+				modelStack.Scale(displacement.Length() / SceneData::GetInstance()->GetGridSize(), .3f, 1.f);
+				RenderMesh(meshList[GEO_LINE], false);
+				modelStack.PopMatrix();
+			}
+
+			// TO Distinguish between each other
+			modelStack.PushMatrix();
+			modelStack.Rotate(0, 0, 0, 1);
+			modelStack.Scale(0.75f, 0.75f, go->scale.z);
+			if (go->RED)
+				RenderMesh(meshList[GEO_BALL], false);
+			else {
+				RenderMesh(meshList[GEO_BLUE_BALL], false);
+			}
+			modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		ss.precision(3);
+		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		ss.str("");
+		ss.precision(3);
+		ss << go->energy;
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
@@ -826,6 +920,7 @@ bool SceneICA1::Handle(Message* message)
 		//a FISH looking for fish food OR SHARK looking for fish etc.
 		GameObject* go = messageWRU->go;
 		go->nearest = nullptr;
+		go->nearestEnemy = nullptr;
 
 		float nearestDistance = FLT_MAX; //FLT_MAX is max possible float value
 		float highestEnergy = FLT_MIN; //FLT_MIN is min possible positive float value
@@ -889,15 +984,17 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
-			else if (messageWRU->type == MessageWRU::NEAREST_VILLAGER_OPS &&
-				go2->type == GameObject::GO_VILLAGER && go->RED != go2->RED && go2->Fightable)
+			else if (messageWRU->type == MessageWRU::NEAREST_OPS &&
+				go2->type >= GameObject::GO_VILLAGER && go2->type < GameObject::GO_BLACK && go->RED != go2->RED && go2->Fightable)
 			{
+				if (go2->Building && !go->BuildingDestroyer)
+					continue;
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)
 				{
 					nearestDistance = distance;
 					go->nearestEnemy = go2;
-					std::cout << "FOUND ENEMY" << std::endl;
+					//std::cout << "FOUND ENEMY" << std::endl;
 				}
 				//std::cout << "Searching for Villager OPS" << std::endl;
 			}
@@ -975,6 +1072,58 @@ bool SceneICA1::Handle(Message* message)
 
 			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 			//std::cout << "Making House " << std::endl;
+		}
+		else if (messageWRU->type == MessageWRU::SPAWN_TURRET)
+		{
+			//std::cout << "Making HouseStart " << std::endl;
+			Vector3 SpawnPosition;
+			bool SpawnLeft;
+			bool SpawnRight;
+			bool SpawnTop;
+			bool SpawnBottom;
+
+			SpawnLeft = SpawnRight = SpawnTop = SpawnBottom = false;
+			Vector3 temp = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnRight = true;
+			}
+			temp = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnLeft = true;
+			}
+			temp = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnTop = true;
+			}
+			temp = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnBottom = true;
+			}
+
+
+			float random = Math::RandFloatMinMax(0.f, 1.f);
+			if (random < 0.25f && SpawnRight)
+				SpawnPosition = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.5f && SpawnLeft)
+				SpawnPosition = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.75f && SpawnTop)
+				SpawnPosition = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			else if (SpawnBottom)
+				SpawnPosition = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+
+
+			GameObject* turret = FetchGO(GameObject::GO_TURRET);
+			turret->scale.Set(gridSize, gridSize, gridSize);
+			turret->pos.Set(SpawnPosition.x, SpawnPosition.y, SpawnPosition.z);
+			turret->target = go->pos;
+			turret->steps = 0;
+			turret->RED = go->RED;
+			//house->energy = 8.f;
+			turret->nearest = NULL;
+			turret->Stationary = true;
+			turret->Collision = true;
+
+			go->sm->SetNextState("TurretStandby");
 		}
 
 		else if (messageWRU->type == MessageWRU::SPAWN_VILLAGER)

@@ -16,10 +16,11 @@ struct MessageWRU : public Message
 		NEAREST_GRASS,
 		NEAREST_TREE_VILLAGER,
 		NEAREST_VILLAGER,
-		NEAREST_VILLAGER_OPS,
+		NEAREST_OPS,
 		NEAREST_HOUSE_VILLAGER,
 		NEAREST_COW,
 		SPAWN_HOUSE,
+		SPAWN_TURRET,
 		SPAWN_VILLAGER
 	};
 	MessageWRU(GameObject *goValue, SEARCH_TYPE typeValue, float thresholdValue) : go(goValue), type(typeValue), threshold(thresholdValue) {}
@@ -48,6 +49,18 @@ struct MessageCheckFood : public Message
 struct MessageCheckShark : public Message
 {
 	MessageCheckShark() {}
+};
+
+struct MessageHurtEntity : public Message
+{
+	float damage;
+	MessageHurtEntity(float Damage) {
+		damage = Damage;
+	}
+
+	//void testfunc() {
+
+	//}
 };
 
 #endif

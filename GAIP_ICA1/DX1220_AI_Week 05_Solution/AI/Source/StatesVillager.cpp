@@ -68,7 +68,7 @@ void VillagerStateFull::Update(double dt)
 	enemy_elasped += static_cast<float>(dt);
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
-		std::cout << "RAAAH" << std::endl;
+		//std::cout << "RAAAH" << std::endl;
 		m_go->sm->SetNextState("VillagerChaseOps");
 	}
 	else if (m_go->energy >= 10.f)
@@ -115,7 +115,7 @@ void VillagerStateFull::Update(double dt)
 	if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
 	{
 		enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
-		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_VILLAGER_OPS, EnemyDetectionDist *SceneData::GetInstance()->GetGridSize()));
+		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_OPS, EnemyDetectionDist *SceneData::GetInstance()->GetGridSize()));
 	}
 }
 
@@ -152,7 +152,7 @@ void VillagerStateHungry::Update(double dt)
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
 
 	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
-		std::cout << "RAAAH" << std::endl;
+		//std::cout << "RAAAH" << std::endl;
 		m_go->sm->SetNextState("VillagerChaseOps");
 	}
 	if (m_go->energy < 0.f || m_go->hp <= 0)
@@ -213,7 +213,7 @@ void VillagerStateHungry::Update(double dt)
 	if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
 	{
 		enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
-		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_VILLAGER_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
+		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
 	}
 }
 
@@ -269,19 +269,19 @@ void VillagerStateCutTree::Enter()
 	m_go->Stationary = true;
 	m_elapsed = 3;
 	message_elapsed = MESSAGE_INTERVAL;
-	enemy_elasped = MESSAGE_INTERVAL;
+	/*enemy_elasped = MESSAGE_INTERVAL;*/
 }
 
 void VillagerStateCutTree::Update(double dt)
 {
-	enemy_elasped += static_cast<float>(dt);
+	/*enemy_elasped += static_cast<float>(dt);*/
 	message_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 	bool CutTree = false;
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
-	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
-		std::cout << "RAAAH" << std::endl;
-		m_go->sm->SetNextState("VillagerChaseOps");
-	}
+	//if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
+	//	//std::cout << "RAAAH" << std::endl;
+	//	m_go->sm->SetNextState("VillagerChaseOps");
+	//}
 
 	if (m_go->energy < 0.f || m_go->hp <= 0.0f)
 	{
@@ -321,11 +321,11 @@ void VillagerStateCutTree::Update(double dt)
 			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_TREE_VILLAGER, FOOD_DIST));
 		}
 	}
-	if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
-	{
-		enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
-		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_VILLAGER_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
-	}
+	//if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
+	//{
+	//	enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
+	//	PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
+	//}
 }
 
 void VillagerStateCutTree::Exit()
@@ -449,7 +449,7 @@ void VillagerChaseOps::Enter()
 
 void VillagerChaseOps::Update(double dt)
 {
-	std::cout << "ChaseOps" << std::endl;
+	//std::cout << "ChaseOps" << std::endl;
 	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 
 	m_go->Stationary = false;

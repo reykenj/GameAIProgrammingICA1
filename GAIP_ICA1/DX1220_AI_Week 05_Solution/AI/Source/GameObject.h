@@ -16,11 +16,12 @@ struct GameObject : public ObjectBase
 		GO_FISH,
 		GO_SHARK,
 		GO_FISHFOOD,
-		GO_VILLAGER,
 		GO_GRASS,
 		GO_TREE,
-		GO_HOUSE,
 		GO_COW,
+		GO_VILLAGER,
+		GO_HOUSE,
+		GO_TURRET,
 		GO_BLACK,
 		GO_WHITE,
 		GO_TOTAL, //must be last
@@ -46,6 +47,7 @@ struct GameObject : public ObjectBase
 	float Maxhp;
 	float moveSpeed;
 	float countDown;
+	int Shots;
 	GameObject *nearest;
 	GameObject *nearestEnemy;
 	bool moveLeft;
@@ -56,6 +58,9 @@ struct GameObject : public ObjectBase
 	bool Stationary;
 	bool Collision;
 	bool Fightable = true;
+
+	bool BuildingDestroyer = false;
+	bool Building = false;
 	float GridSizeMultiplier;
 
 	bool RED;

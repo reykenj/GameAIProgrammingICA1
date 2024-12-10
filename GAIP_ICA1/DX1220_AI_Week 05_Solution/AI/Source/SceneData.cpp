@@ -1,4 +1,6 @@
 #include "SceneData.h"
+#include <cstdlib> 
+#include <ctime> 
 
 int SceneData::GetObjectCount() const
 {
@@ -120,4 +122,38 @@ bool SceneData::CheckWithinGrid(float x, float y, float z) {
 
 
 	return (x > MinGridPosX && y > MinGridPosY) && (x < MaxGridPosX && y < MaxGridPosY);
+}
+
+SceneData::BUILDING_TYPE SceneData::RollRandomBuildingType()
+{
+
+	//static bool initialized = false;
+	//if (!initialized)
+	//{
+	//	srand(static_cast<unsigned>(time(nullptr)));
+	//	initialized = true;
+	//}
+
+	int randomIndex = rand() % BT_TOTAL;
+	return static_cast<BUILDING_TYPE>(randomIndex);
+}
+
+SceneData::BUILDING_TYPE SceneData::GetBuildingType(bool RED) const
+{
+	if (RED) {
+		return btRED;
+	}
+	else {
+		return btBLUE;
+	}
+}
+
+void SceneData::SetBuildingType(BUILDING_TYPE newtype, bool RED)
+{
+	if (RED) {
+		btRED = newtype;
+	}
+	else {
+		btBLUE = newtype;
+	}
 }
