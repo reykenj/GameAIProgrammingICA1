@@ -116,16 +116,16 @@ void SceneICA1::Init()
 		//grass->sm->SetNextState("VillagerFull");
 
 
-		GameObject* juggernaut = FetchGO(GameObject::GO_JUGGERNAUT);
-		juggernaut->scale.Set(gridSize, gridSize, gridSize);
-		juggernaut->pos.Set(RandomPosition.x, RandomPosition.y, 0);
-		juggernaut->target = juggernaut->pos;
-		juggernaut->steps = 0;
-		juggernaut->nearest = NULL;
-		juggernaut->nearestEnemy = NULL;
-		juggernaut->Collision = true;
-		juggernaut->RED = true;
-		juggernaut->sm->SetNextState("JuggernautStateRally");
+		//GameObject* juggernaut = FetchGO(GameObject::GO_JUGGERNAUT);
+		//juggernaut->scale.Set(gridSize, gridSize, gridSize);
+		//juggernaut->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		//juggernaut->target = juggernaut->pos;
+		//juggernaut->steps = 0;
+		//juggernaut->nearest = NULL;
+		//juggernaut->nearestEnemy = NULL;
+		//juggernaut->Collision = true;
+		//juggernaut->RED = true;
+		//juggernaut->sm->SetNextState("JuggernautStateRally");
 		// 
 
 		//GameObject* bomb = FetchGO(GameObject::GO_BOMB);
@@ -1450,6 +1450,18 @@ bool SceneICA1::Handle(Message* message)
 			bomb->nearestEnemy = NULL;
 			bomb->Collision = true;
 			bomb->sm->SetNextState("BombWalking");
+		}
+		else if (messageWRU->type == MessageWRU::SPAWN_JUGGERNAUT) {
+			GameObject* juggernaut = FetchGO(GameObject::GO_JUGGERNAUT);
+			juggernaut->scale.Set(gridSize, gridSize, gridSize);
+			juggernaut->pos.Set(go->pos.x, go->pos.y, 0);
+			juggernaut->target = juggernaut->pos;
+			juggernaut->steps = 0;
+			juggernaut->nearest = NULL;
+			juggernaut->nearestEnemy = NULL;
+			juggernaut->Collision = true;
+			juggernaut->RED = go->RED;
+			juggernaut->sm->SetNextState("JuggernautStateRally");
 		}
 
 		delete message; //remember, the message is allocated on the heap!

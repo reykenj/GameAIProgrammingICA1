@@ -32,9 +32,12 @@ void SummonAltarStateSpawner::Update(double dt)
 	ElaspedTime += static_cast<float>(dt);
 	if (ElaspedTime >= MaxEliteSpawnerTime) {
 		ElaspedTime = 0;
-		int random = Math::RandIntMinMax(0, 10);
+		int random = Math::RandIntMinMax(0, 20);
 		if (random == 1) {
 			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::SPAWN_BOMB, 1.0f));
+		}
+		else if (random == 2) {
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::SPAWN_JUGGERNAUT, 1.0f));
 		}
 	}
 }

@@ -151,6 +151,7 @@ void JuggernautStateAttacking::Enter()
 	m_go->Stationary = false;
 	attack_elasped = 0.0f;
 	m_elapsed = MESSAGE_INTERVAL;
+	PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::RALLY_ALL_VILLAGERS, 0.0f));
 }
 
 void JuggernautStateAttacking::Update(double dt)
@@ -216,7 +217,6 @@ void JuggernautStateAttacking::Update(double dt)
 			{
 				m_elapsed -= MESSAGE_INTERVAL;
 				const float HOUSE_DIST = 100.f * SceneData::GetInstance()->GetGridSize();
-				PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::RALLY_ALL_VILLAGERS, 0.0f));
 				PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_HOUSE_OPS, HOUSE_DIST));
 			}
 		}

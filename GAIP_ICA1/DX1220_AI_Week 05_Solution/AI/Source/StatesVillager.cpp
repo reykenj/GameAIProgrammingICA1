@@ -598,6 +598,10 @@ void VillagerCharge::Update(double dt)
 		{
 			m_go->moveUp = false;
 		}
+
+		if (m_elapsed > 10.0f) {
+			m_go->sm->SetNextState("VillagerFull");
+		}
 	}
 	else //go->nearest is nullptr
 	{

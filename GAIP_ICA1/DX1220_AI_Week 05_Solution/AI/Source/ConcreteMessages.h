@@ -27,7 +27,8 @@ struct MessageWRU : public Message
 		SPAWN_TURRET,
 		SPAWN_SUMMONALTAR,
 		SPAWN_VILLAGER,
-		SPAWN_BOMB
+		SPAWN_BOMB,
+		SPAWN_JUGGERNAUT
 	};
 	MessageWRU(GameObject *goValue, SEARCH_TYPE typeValue, float thresholdValue) : go(goValue), type(typeValue), threshold(thresholdValue) {}
 	virtual ~MessageWRU() {}
