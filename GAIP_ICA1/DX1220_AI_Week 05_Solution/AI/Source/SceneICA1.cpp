@@ -313,7 +313,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new JuggernautStateRushAllies("JuggernautStateRushAllies", go));
 			go->sm->AddState(new JuggernautStateAttacking("JuggernautStateAttacking", go));
 			go->sm->AddState(new JuggernautStateDead("JuggernautStateDead", go));
-			go->Maxhp = 10.0f;
+			go->Maxhp = 25.0f;
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 	}
 	return FetchGO(type);
