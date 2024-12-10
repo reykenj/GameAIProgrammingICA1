@@ -7,6 +7,7 @@
 #include "StateTurret.h"
 #include "StatesShark.h"
 #include "StatesHouse.h"
+#include "StatesBomb.h"
 #include "StatesSummonAltar.h"
 #include "SceneData.h"
 #include "PostOffice.h"
@@ -65,6 +66,7 @@ void SceneICA1::Init()
 		house->nearest = NULL;
 		house->Stationary = true;
 		house->Collision = true;
+		house->sm->SetNextState("HouseSpawner");
 		//grass->sm->SetNextState("VillagerFull");
 
 		for (int x = -1; x < 2; x += 2) {
@@ -97,6 +99,7 @@ void SceneICA1::Init()
 		house->Stationary = true;
 		house->Collision = true;
 		house->RED = true;
+		house->sm->SetNextState("HouseSpawner");
 
 		//GameObject* turret = FetchGO(GameObject::GO_TURRET);
 		//turret->scale.Set(gridSize, gridSize, gridSize);
@@ -110,6 +113,20 @@ void SceneICA1::Init()
 		//turret->RED = true;
 
 		//grass->sm->SetNextState("VillagerFull");
+
+
+		GameObject* bomb = FetchGO(GameObject::GO_BOMB);
+		bomb->scale.Set(gridSize, gridSize, gridSize);
+		bomb->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		bomb->target = bomb->pos;
+		bomb->steps = 0;
+		//go->energy = 8.f;
+		bomb->nearest = NULL;
+		bomb->nearestEnemy = NULL;
+		bomb->Collision = true;
+		bomb->RED = true;
+		bomb->sm->SetNextState("BombWalking");
+
 
 		for (int x = -1; x < 2; x += 2) {
 			for (int y = -1; y < 2; y += 2) {
@@ -236,6 +253,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 		{
 			go->sm = new StateMachine();
 			go->sm->AddState(new HouseStateSpawner("HouseSpawner", go));
+			go->sm->AddState(new HouseStateDead("HouseDestroyed", go));
 			go->sm->SetNextState("HouseSpawner");
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
@@ -245,6 +263,7 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 		{
 			go->sm = new StateMachine();
 			go->sm->AddState(new SummonAltarStateSpawner("EliteSpawner", go));
+			go->sm->AddState(new SummonAltarStateDead("SummonAltarDestroyed", go));
 			go->sm->SetNextState("EliteSpawner");
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
@@ -259,6 +278,16 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new TurretStateDead("TurretDead", go));
 			go->sm->SetNextState("TurretStandby");
 
+			//go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
+		}
+		else if (type == GameObject::GO_BOMB)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new BombStateWalking("BombWalking", go));
+			go->sm->AddState(new BombStateSitting("BombSitting", go));
+			go->sm->AddState(new BombStateRunning("BombRunning", go));
+			go->sm->AddState(new BombStateDead("BombDead", go));
 			//go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		}
@@ -776,6 +805,68 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
+
+	case GameObject::GO_BOMB:
+		{
+			const int offset = 0;
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+			modelStack.Scale(go->scale.x - offset, go->scale.y - offset, go->scale.z);
+			modelStack.PushMatrix();
+			modelStack.Rotate(180, 0, 0, 1);
+		}
+
+		if (go->sm)
+		{
+			if (go->sm->GetCurrentState() == "BombWalking")
+				RenderMesh(meshList[GEO_RUNNING_BOMB], false);
+			else if (go->sm->GetCurrentState() == "BombSitting")
+				RenderMesh(meshList[GEO_SITTING_BOMB], false);
+			else if (go->sm->GetCurrentState() == "BombRunning")
+				RenderMesh(meshList[GEO_RUNNING_BOMB], false);
+			else
+				RenderMesh(meshList[GEO_DEATH_BOMB], false);
+		}
+		{
+			modelStack.PopMatrix();
+
+			modelStack.PushMatrix();
+			const Vector3 displacement = go->target - go->pos;
+			modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);
+			modelStack.Scale(displacement.Length() / SceneData::GetInstance()->GetGridSize(), .3f, 1.f);
+			RenderMesh(meshList[GEO_LINE], false);
+			modelStack.PopMatrix();
+
+			// TO Distinguish between each other
+			modelStack.PushMatrix();
+			modelStack.Rotate(0, 0, 0, 1);
+			modelStack.Scale(0.75f, 0.75f, go->scale.z);
+			if (go->RED)
+				RenderMesh(meshList[GEO_BALL], false);
+			else {
+				RenderMesh(meshList[GEO_BLUE_BALL], false);
+			}
+			modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		ss.precision(3);
+		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		ss.str("");
+		ss.precision(3);
+		ss << go->energy;
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
 	case GameObject::GO_SHARK:
 		modelStack.PushMatrix();
 		modelStack.Translate(go->pos.x, go->pos.y, zOffset);
@@ -1049,6 +1140,29 @@ bool SceneICA1::Handle(Message* message)
 					go->nearest = go2;
 				}
 			}
+			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE_OPS &&
+				go2->type == GameObject::GO_HOUSE && go->RED != go2->RED)
+			{
+
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold && distance < nearestDistance)
+				{
+					nearestDistance = distance;
+					go->nearest = go2;
+				}
+			}
+
+			else if (messageWRU->type == MessageWRU::HIT_ALL_OPS_WITHIN_RANGE &&
+				go2->type >= GameObject::GO_VILLAGER && go2->type < GameObject::GO_BLACK && go->RED != go2->RED)
+			{
+				float distance = (go->pos - go2->pos).Length();
+				if (distance < messageWRU->threshold)
+				{
+					go2->hp -= 10;
+					//std::cout << "FOUND ENEMY" << std::endl;
+				}
+				//std::cout << "Searching for Villager OPS" << std::endl;
+			}
 		}
 		if (messageWRU->type == MessageWRU::SPAWN_HOUSE)
 		{
@@ -1099,7 +1213,7 @@ bool SceneICA1::Handle(Message* message)
 			house->nearest = NULL;
 			house->Stationary = true;
 			house->Collision = true;
-
+			house->sm->SetNextState("HouseSpawner");
 			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 			//std::cout << "Making House " << std::endl;
 		}
@@ -1204,7 +1318,7 @@ bool SceneICA1::Handle(Message* message)
 			Altar->nearest = NULL;
 			Altar->Stationary = true;
 			Altar->Collision = true;
-
+			Altar->sm->SetNextState("EliteSpawner");
 			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
 			//std::cout << "Making House " << std::endl;
 			}
@@ -1220,6 +1334,20 @@ bool SceneICA1::Handle(Message* message)
 			villager->nearestEnemy = NULL;
 			villager->Collision = true;
 			villager->sm->SetNextState("VillagerFull");
+		}
+
+		else if (messageWRU->type == MessageWRU::SPAWN_BOMB)
+		{
+			GameObject* bomb = FetchGO(GameObject::GO_BOMB);
+			bomb->scale.Set(gridSize, gridSize, gridSize);
+			bomb->pos.Set(go->pos.x, go->pos.y, go->pos.z);
+			bomb->target = bomb->pos;
+			bomb->RED = go->RED;
+			bomb->steps = 0;
+			bomb->nearest = NULL;
+			bomb->nearestEnemy = NULL;
+			bomb->Collision = true;
+			bomb->sm->SetNextState("BombWalking");
 		}
 
 		delete message; //remember, the message is allocated on the heap!

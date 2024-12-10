@@ -25,6 +25,9 @@ void HouseStateSpawner::Enter()
 
 void HouseStateSpawner::Update(double dt)
 {
+	if (m_go->hp <= 0) {
+		m_go->sm->SetNextState("HouseDestroyed");
+	}
 	ElaspedTime += static_cast<float>(dt);
 	if (ElaspedTime >= MaxVillagerSpawnerTime) {
 		ElaspedTime = 0;
@@ -36,5 +39,36 @@ void HouseStateSpawner::Update(double dt)
 }
 
 void HouseStateSpawner::Exit()
+{
+}
+
+
+
+HouseStateDead::HouseStateDead(const std::string& stateID, GameObject* go)
+	: State(stateID),
+	m_go(go)
+{
+}
+
+HouseStateDead::~HouseStateDead()
+{
+}
+
+void HouseStateDead::Enter()
+{
+	m_go->countDown = 3.f;
+	m_go->moveSpeed = 0;
+}
+
+void HouseStateDead::Update(double dt)
+{
+	m_go->countDown -= static_cast<float>(dt);
+	if (m_go->countDown < 0)
+	{
+		m_go->active = false;
+	}
+}
+
+void HouseStateDead::Exit()
 {
 }

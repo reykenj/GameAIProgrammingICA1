@@ -19,4 +19,20 @@ public:
 
 };
 
+
+class HouseStateDead : public State
+{
+	GameObject* m_go;
+	float ElaspedTime = 0;
+	float MaxVillagerSpawnerTime = 10.0f;
+public:
+	HouseStateDead(const std::string& stateID, GameObject* go);
+	virtual ~HouseStateDead();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
 #endif

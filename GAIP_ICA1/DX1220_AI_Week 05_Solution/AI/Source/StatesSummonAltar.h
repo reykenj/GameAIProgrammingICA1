@@ -19,4 +19,20 @@ public:
 
 };
 
+
+class SummonAltarStateDead : public State
+{
+	GameObject* m_go;
+	float ElaspedTime = 0;
+	float MaxEliteDeadTime = 10.0f;
+public:
+	SummonAltarStateDead(const std::string& stateID, GameObject* go);
+	virtual ~SummonAltarStateDead();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
 #endif

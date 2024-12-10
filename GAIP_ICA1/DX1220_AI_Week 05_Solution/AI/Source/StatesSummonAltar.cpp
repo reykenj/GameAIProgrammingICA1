@@ -26,6 +26,9 @@ void SummonAltarStateSpawner::Enter()
 
 void SummonAltarStateSpawner::Update(double dt)
 {
+	if (m_go->hp <= 0){
+		m_go->sm->SetNextState("SummonAltarDestroyed");
+	}
 	ElaspedTime += static_cast<float>(dt);
 	if (ElaspedTime >= MaxEliteSpawnerTime) {
 		ElaspedTime = 0;
@@ -37,5 +40,35 @@ void SummonAltarStateSpawner::Update(double dt)
 }
 
 void SummonAltarStateSpawner::Exit()
+{
+}
+
+
+SummonAltarStateDead:: SummonAltarStateDead(const std::string& stateID, GameObject* go)
+	: State(stateID),
+	m_go(go)
+{
+}
+
+SummonAltarStateDead::~ SummonAltarStateDead()
+{
+}
+
+void  SummonAltarStateDead::Enter()
+{
+	m_go->countDown = 3.f;
+	m_go->moveSpeed = 0;
+}
+
+void  SummonAltarStateDead::Update(double dt)
+{
+	m_go->countDown -= static_cast<float>(dt);
+	if (m_go->countDown < 0)
+	{
+		m_go->active = false;
+	}
+}
+
+void  SummonAltarStateDead::Exit()
 {
 }

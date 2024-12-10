@@ -94,7 +94,7 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 			//sm->SetNextState("CowEating");
 		}
 		if (go2->type == GO_HOUSE) {
-			if (RED == go2->RED) {
+			if (RED == go2->RED && go2->hp > 0) {
 				Fightable = false;
 				if (sm->GetCurrentState() == "VillagerGoToHouse") {
 					sm->SetNextState("VillagerFull");
@@ -158,7 +158,12 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 			//sm->SetNextState("CowEating");
 		}
 	}
-
+	else if (type == GO_BOMB) {
+		if (this != go2 && go2->type >= GO_VILLAGER && go2->type < GO_BLACK && hp > 0 && RED != go2->RED) {
+			hp = 0;
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(this, MessageWRU::HIT_ALL_OPS_WITHIN_RANGE, 2.0f * SceneData::GetInstance()->GetGridSize()));
+		}
+	}
 	else if (this->type >= GO_HOUSE && go2->type < GO_BLACK) {
 		if (this != go2 && go2->type >= GO_HOUSE && go2->type < GO_BLACK) {
 			Vector3 SpawnPosition;
