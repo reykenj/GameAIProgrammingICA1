@@ -50,10 +50,10 @@ void SceneICA1::Init()
 	float gridSize = SceneData::GetInstance()->GetGridSize();
 	float gridOffset = SceneData::GetInstance()->GetGridOffset();
 	int numGrid = SceneData::GetInstance()->GetNumGrid();
-	GameObject* go = FetchGO(GameObject::GO_SHARK);
-	go->scale.Set(gridSize, gridSize, gridSize);
-	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
-	go->target = go->pos;
+	//GameObject* go = FetchGO(GameObject::GO_SHARK);
+	//go->scale.Set(gridSize, gridSize, gridSize);
+	//go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+	//go->target = go->pos;
 
 	{
 		Vector3 RandomPosition = Vector3(gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, gridOffset + Math::RandIntMinMax(1, numGrid - 2) * gridSize, 0);
@@ -61,7 +61,7 @@ void SceneICA1::Init()
 		GameObject* house = FetchGO(GameObject::GO_HOUSE);
 		house->scale.Set(gridSize, gridSize, gridSize);
 		house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
-		house->target = go->pos;
+		house->target = house->pos;
 		house->steps = 0;
 		//house->energy = 8.f;
 		house->nearest = NULL;
@@ -93,7 +93,7 @@ void SceneICA1::Init()
 		GameObject* house = FetchGO(GameObject::GO_HOUSE);
 		house->scale.Set(gridSize, gridSize, gridSize);
 		house->pos.Set(RandomPosition.x, RandomPosition.y, 0);
-		house->target = go->pos;
+		house->target = house->pos;
 		house->steps = 0;
 		//house->energy = 8.f;
 		house->nearest = NULL;
@@ -397,74 +397,74 @@ void SceneICA1::Update(double dt)
 	currentTime += dt;
 
 
-	//Input Section
-	static bool bLButtonState = false;
-	if (!bLButtonState && Application::IsMousePressed(0))
-	{
-		bLButtonState = true;
-		std::cout << "LBUTTON DOWN" << std::endl;
-	}
-	else if (bLButtonState && !Application::IsMousePressed(0))
-	{
-		bLButtonState = false;
-		std::cout << "LBUTTON UP" << std::endl;
-	}
-	static bool bRButtonState = false;
-	if (!bRButtonState && Application::IsMousePressed(1))
-	{
-		bRButtonState = true;
-		std::cout << "RBUTTON DOWN" << std::endl;
-	}
-	else if (bRButtonState && !Application::IsMousePressed(1))
-	{
-		bRButtonState = false;
-		std::cout << "RBUTTON UP" << std::endl;
-	}
-	static bool bSpaceState = false;
-	if (!bSpaceState && Application::IsKeyPressed(VK_SPACE))
-	{
-		bSpaceState = true;
-		GameObject* go = FetchGO(GameObject::GO_VILLAGER);
-		go->scale.Set(gridSize, gridSize, gridSize);
-		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
-		go->target = go->pos;
-		go->steps = 0;
-		go->energy = 8.f;
-		go->nearest = NULL;
-		go->Collision = true;
-		go->sm->SetNextState("VillagerFull");
-	}
-	else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
-	{
-		bSpaceState = false;
-	}
-	static bool bVState = false;
-	if (!bVState && Application::IsKeyPressed('V'))
-	{
-		bVState = true;
-		GameObject* go = FetchGO(GameObject::GO_FISHFOOD);
-		go->scale.Set(gridSize, gridSize, gridSize);
-		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
-		go->target = go->pos;
-		go->moveSpeed = 1.f;
-	}
-	else if (bVState && !Application::IsKeyPressed('V'))
-	{
-		bVState = false;
-	}
-	static bool bBState = false;
-	if (!bBState && Application::IsKeyPressed('B'))
-	{
-		bBState = true;
-		GameObject* go = FetchGO(GameObject::GO_SHARK);
-		go->scale.Set(gridSize, gridSize, gridSize);
-		go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
-		go->target = go->pos;
-	}
-	else if (bBState && !Application::IsKeyPressed('B'))
-	{
-		bBState = false;
-	}
+	////Input Section
+	//static bool bLButtonState = false;
+	//if (!bLButtonState && Application::IsMousePressed(0))
+	//{
+	//	bLButtonState = true;
+	//	std::cout << "LBUTTON DOWN" << std::endl;
+	//}
+	//else if (bLButtonState && !Application::IsMousePressed(0))
+	//{
+	//	bLButtonState = false;
+	//	std::cout << "LBUTTON UP" << std::endl;
+	//}
+	//static bool bRButtonState = false;
+	//if (!bRButtonState && Application::IsMousePressed(1))
+	//{
+	//	bRButtonState = true;
+	//	std::cout << "RBUTTON DOWN" << std::endl;
+	//}
+	//else if (bRButtonState && !Application::IsMousePressed(1))
+	//{
+	//	bRButtonState = false;
+	//	std::cout << "RBUTTON UP" << std::endl;
+	//}
+	//static bool bSpaceState = false;
+	//if (!bSpaceState && Application::IsKeyPressed(VK_SPACE))
+	//{
+	//	bSpaceState = true;
+	//	GameObject* go = FetchGO(GameObject::GO_VILLAGER);
+	//	go->scale.Set(gridSize, gridSize, gridSize);
+	//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+	//	go->target = go->pos;
+	//	go->steps = 0;
+	//	go->energy = 8.f;
+	//	go->nearest = NULL;
+	//	go->Collision = true;
+	//	go->sm->SetNextState("VillagerFull");
+	//}
+	//else if (bSpaceState && !Application::IsKeyPressed(VK_SPACE))
+	//{
+	//	bSpaceState = false;
+	//}
+	//static bool bVState = false;
+	//if (!bVState && Application::IsKeyPressed('V'))
+	//{
+	//	bVState = true;
+	//	GameObject* go = FetchGO(GameObject::GO_FISHFOOD);
+	//	go->scale.Set(gridSize, gridSize, gridSize);
+	//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+	//	go->target = go->pos;
+	//	go->moveSpeed = 1.f;
+	//}
+	//else if (bVState && !Application::IsKeyPressed('V'))
+	//{
+	//	bVState = false;
+	//}
+	//static bool bBState = false;
+	//if (!bBState && Application::IsKeyPressed('B'))
+	//{
+	//	bBState = true;
+	//	GameObject* go = FetchGO(GameObject::GO_SHARK);
+	//	go->scale.Set(gridSize, gridSize, gridSize);
+	//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, noGrid - 1) * gridSize, 0);
+	//	go->target = go->pos;
+	//}
+	//else if (bBState && !Application::IsKeyPressed('B'))
+	//{
+	//	bBState = false;
+	//}
 
 	std::vector<GameObject*> templist = m_goList;
 	//StateMachine
@@ -679,22 +679,22 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		ss.precision(3);
-		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.precision(3);
+		//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		ss.str("");
-		ss.precision(3);
-		ss << go->energy;
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->energy;
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_TURRET:
@@ -743,22 +743,22 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		ss.precision(3);
-		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.precision(3);
+		//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		ss.str("");
-		ss.precision(3);
-		ss << go->energy;
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->energy;
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_TREE:
@@ -788,13 +788,15 @@ void SceneICA1::RenderGO(GameObject* go)
 		if (go->sm)
 		{
 			if (go->sm->GetCurrentState() == "CowTooFull")
-				RenderMesh(meshList[GEO_TOOFULL], false);
+				RenderMesh(meshList[GEO_NEUTRAL_COW], false);
 			else if (go->sm->GetCurrentState() == "CowFull")
 				RenderMesh(meshList[GEO_NEUTRAL_COW], false);
 			else if (go->sm->GetCurrentState() == "CowHungry")
-				RenderMesh(meshList[GEO_HUNGRY], false);
+				RenderMesh(meshList[GEO_NEUTRAL_COW], false);
+			else if (go->sm->GetCurrentState() == "CowEating")
+				RenderMesh(meshList[GEO_NEUTRAL_COW], false);
 			else
-				RenderMesh(meshList[GEO_DEAD], false);
+				RenderMesh(meshList[GEO_DEAD_COW], false);
 		}
 		{
 			modelStack.PopMatrix();
@@ -814,22 +816,22 @@ void SceneICA1::RenderGO(GameObject* go)
 			//modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		ss.precision(3);
-		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.precision(3);
+		//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		ss.str("");
-		ss.precision(3);
-		ss << go->energy;
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->energy;
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_VILLAGER:
@@ -844,14 +846,14 @@ void SceneICA1::RenderGO(GameObject* go)
 
 		if (go->sm)
 		{
-			if (go->sm->GetCurrentState() == "VillagerTooFull")
-				RenderMesh(meshList[GEO_TOOFULL], false);
-			else if (go->sm->GetCurrentState() == "VillagerFull")
+			if (go->sm->GetCurrentState() == "VillagerTooFull" || go->sm->GetCurrentState() == "VillagerGoToHouse")
+				RenderMesh(meshList[GEO_HAPPY_VILLAGER], false);
+			else if (go->sm->GetCurrentState() == "VillagerFull" || go->sm->GetCurrentState() == "VillagerCuttingTree")
 				RenderMesh(meshList[GEO_NEUTRAL_VILLAGER], false);
-			else if (go->sm->GetCurrentState() == "VillagerHungry")
-				RenderMesh(meshList[GEO_HUNGRY], false);
+			else if (go->sm->GetCurrentState() == "VillagerHungry" || go->sm->GetCurrentState() == "VillagerChaseOps" || go->sm->GetCurrentState() == "VillagerFollow")
+				RenderMesh(meshList[GEO_ANGRY_VILLAGER], false);
 			else
-				RenderMesh(meshList[GEO_DEAD], false);
+				RenderMesh(meshList[GEO_DEAD_VILLAGER], false);
 		}
 		{
 			modelStack.PopMatrix();
@@ -875,22 +877,22 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		ss.precision(3);
-		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.precision(3);
+		//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		ss.str("");
-		ss.precision(3);
-		ss << go->energy;
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->energy;
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 
@@ -937,22 +939,22 @@ void SceneICA1::RenderGO(GameObject* go)
 			modelStack.PopMatrix();
 		}
 
-		modelStack.PushMatrix();
-		ss.precision(3);
-		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.precision(3);
+		//ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 
-		modelStack.PushMatrix();
-		ss.str("");
-		ss.precision(3);
-		ss << go->energy;
-		modelStack.Scale(0.5f, 0.5f, 0.5f);
-		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
-		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
-		modelStack.PopMatrix();
+		//modelStack.PushMatrix();
+		//ss.str("");
+		//ss.precision(3);
+		//ss << go->energy;
+		//modelStack.Scale(0.5f, 0.5f, 0.5f);
+		//modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		//RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		//modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
 	case GameObject::GO_SHARK:
@@ -1041,19 +1043,19 @@ void SceneICA1::Render()
 
 	ss.precision(3);
 
-	float fCounter = 0;
-	for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
-	{
-		GameObject* go = (GameObject*)*it;
-		if ((go->active) && (go->type == GameObject::GO_VILLAGER) && (go->nearest))
-		{
-			ss.str("");
-			ss << "Fish:" << go->id << "[" << go->pos.x << "," << go->pos.y <<
-				"]>[" << go->nearest->pos.x << "," << go->nearest->pos.y << "]";
-			RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 56 - fCounter);
-			fCounter += 2.0f;
-		}
-	}
+	//float fCounter = 0;
+	//for (std::vector<GameObject*>::iterator it = m_goList.begin(); it != m_goList.end(); ++it)
+	//{
+	//	GameObject* go = (GameObject*)*it;
+	//	if ((go->active) && (go->type == GameObject::GO_VILLAGER) && (go->nearest))
+	//	{
+	//		ss.str("");
+	//		ss << "Fish:" << go->id << "[" << go->pos.x << "," << go->pos.y <<
+	//			"]>[" << go->nearest->pos.x << "," << go->nearest->pos.y << "]";
+	//		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 56 - fCounter);
+	//		fCounter += 2.0f;
+	//	}
+	//}
 
 	ss.str("");
 	ss.precision(3);
@@ -1095,7 +1097,7 @@ void SceneICA1::Render()
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 15);
 
 
-	RenderTextOnScreen(meshList[GEO_TEXT], "Aquarium", Color(0, 1, 0), 3, 50, 0);
+	RenderTextOnScreen(meshList[GEO_TEXT], "Village Royale", Color(0, 1, 0), 3, 50, 0);
 }
 
 void SceneICA1::Exit()
@@ -1128,8 +1130,12 @@ bool SceneICA1::Handle(Message* message)
 		//get pointer to the entity who fired the event
 		//a FISH looking for fish food OR SHARK looking for fish etc.
 		GameObject* go = messageWRU->go;
-		go->nearest = nullptr;
-		go->nearestEnemy = nullptr;
+		if (messageWRU->type == MessageWRU::NEAREST_OPS) {
+			go->nearestEnemy = nullptr;
+		}
+		else {
+			go->nearest = nullptr;
+		}
 
 		float nearestDistance = FLT_MAX; //FLT_MAX is max possible float value
 		float highestEnergy = FLT_MIN; //FLT_MIN is min possible positive float value

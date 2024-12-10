@@ -137,6 +137,17 @@ void SceneBase::Init()
 	//meshList[GEO_NEUTRAL_VILLAGER]->material.kAmbient.Set(1, 0, 0);
 	meshList[GEO_NEUTRAL_VILLAGER]->textureID = LoadTGA("Image//NeutralVillager.tga");
 
+
+	meshList[GEO_ANGRY_VILLAGER] = MeshBuilder::GenerateQuad("neutralvillager", Color(1, 1, 1));
+	meshList[GEO_ANGRY_VILLAGER]->textureID = LoadTGA("Image//angryvillager.tga");
+
+
+	meshList[GEO_HAPPY_VILLAGER] = MeshBuilder::GenerateQuad("neutralvillager", Color(1, 1, 1));
+	meshList[GEO_HAPPY_VILLAGER]->textureID = LoadTGA("Image//happyvillager.tga");
+
+	meshList[GEO_DEAD_VILLAGER] = MeshBuilder::GenerateQuad("neutralvillager", Color(1, 1, 1));
+	meshList[GEO_DEAD_VILLAGER]->textureID = LoadTGA("Image//deadvillager.tga");
+
 	meshList[GEO_HOUSE] = MeshBuilder::GenerateQuad("house", Color(1, 1, 1));
 	meshList[GEO_HOUSE]->textureID = LoadTGA("Image//house.tga");
 
@@ -148,6 +159,9 @@ void SceneBase::Init()
 
 	meshList[GEO_NEUTRAL_COW] = MeshBuilder::GenerateQuad("Cow", Color(1, 1, 1));
 	meshList[GEO_NEUTRAL_COW]->textureID = LoadTGA("Image//cow.tga");
+
+	meshList[GEO_DEAD_COW] = MeshBuilder::GenerateQuad("deadcow", Color(1, 1, 1));
+	meshList[GEO_DEAD_COW]->textureID = LoadTGA("Image//cowdead.tga");
 
 
 
