@@ -70,4 +70,17 @@ struct MessageHurtEntity : public Message
 	//}
 };
 
+
+struct MessageCheckTeamAmt : public Message
+{
+	bool RED;
+	MessageCheckTeamAmt(bool red) {
+		RED = red;
+	}
+
+	//void testfunc() {
+
+	//}
+};
+
 #endif

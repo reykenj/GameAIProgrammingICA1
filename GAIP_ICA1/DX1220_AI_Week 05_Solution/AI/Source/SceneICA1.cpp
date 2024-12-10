@@ -547,20 +547,29 @@ void SceneICA1::Update(double dt)
 	//create message on the stack, then pass the address of message to each gameobject
 	//i.e. everyone shares the same message. fewer allocation of memory.
 	MessageCheckActive msgCheckActive = MessageCheckActive();
-	MessageCheckFish msgCheckFish = MessageCheckFish();
-	MessageCheckFood msgCheckFood = MessageCheckFood();
-	MessageCheckShark msgCheckShark = MessageCheckShark();
+	//MessageCheckFish msgCheckFish = MessageCheckFish();
+	//MessageCheckFood msgCheckFood = MessageCheckFood();
+	//MessageCheckShark msgCheckShark = MessageCheckShark();
+	MessageCheckTeamAmt REDmsgCheckTeam = MessageCheckTeamAmt(true);
+	MessageCheckTeamAmt BLUEmsgCheckTeam = MessageCheckTeamAmt(false);
+
+	int REDmsgCheckTeamCount = 0;
+	int BLUEmsgCheckTeamCount = 0;
 	for (GameObject* go : templist)
 	{
 		//since PostOffice does not support sending to multiple observers under
 		//a single key, we opt for this approach
 		//consider changing PostOffice to support this functionality if you want! :)
 		objectCount += static_cast<int>(go->Handle(&msgCheckActive));
-		m_numGO[GameObject::GO_VILLAGER] += static_cast<int>(go->Handle(&msgCheckFish));
-		m_numGO[GameObject::GO_FISHFOOD] += static_cast<int>(go->Handle(&msgCheckFood));
-		m_numGO[GameObject::GO_SHARK] += static_cast<int>(go->Handle(&msgCheckShark));
-	}
 
+		REDmsgCheckTeamCount += static_cast<int>(go->Handle(&REDmsgCheckTeam));
+		BLUEmsgCheckTeamCount += static_cast<int>(go->Handle(&BLUEmsgCheckTeam));
+		//m_numGO[GameObject::GO_VILLAGER] += static_cast<int>(go->Handle(&msgCheckFish));
+		//m_numGO[GameObject::GO_FISHFOOD] += static_cast<int>(go->Handle(&msgCheckFood));
+		//m_numGO[GameObject::GO_SHARK] += static_cast<int>(go->Handle(&msgCheckShark));
+	}
+	SceneData::GetInstance()->SetVillageAmt(REDmsgCheckTeamCount, true);
+	SceneData::GetInstance()->SetVillageAmt(BLUEmsgCheckTeamCount, false);
 	SceneData::GetInstance()->SetObjectCount(objectCount);
 	SceneData::GetInstance()->SetVillagerCount(m_numGO[GameObject::GO_VILLAGER]);
 }
@@ -1082,6 +1091,28 @@ void SceneICA1::Render()
 	//ss.str("");
 	//ss << "Food:" << m_numGO[GameObject::GO_FISHFOOD];
 	//RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 12);
+
+	int BlueTeamAmt = SceneData::GetInstance()->GetVillageAmt(false);
+	int RedTeamAmt = SceneData::GetInstance()->GetVillageAmt(true);
+	ss.str("");
+	ss << "BLUE TEAM AMT:" << BlueTeamAmt;
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 30);
+	ss.str("");
+	ss << "RED TEAM AMT:" << RedTeamAmt;
+	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 27);
+
+	if (RedTeamAmt <= 0) {
+		ss.str("");
+		ss << "BLUE TEAM WON!";
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 0, 1), 7, 2.5f, 27);
+	}
+	else if (BlueTeamAmt <= 0) {
+		ss.str("");
+		ss << "RED TEAM WON!";
+		RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(1, 0, 0), 7, 2.5f, 27);
+	}
+
+
 	ss.str("");
 	ss << "BLUEFoodCollected:" << SceneData::GetInstance()->GetFoodEnergyCount(false);
 	RenderTextOnScreen(meshList[GEO_TEXT], ss.str(), Color(0, 1, 0), 3, 50, 21);

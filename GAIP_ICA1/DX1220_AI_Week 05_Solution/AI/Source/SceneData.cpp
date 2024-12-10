@@ -124,6 +124,26 @@ bool SceneData::CheckWithinGrid(float x, float y, float z) {
 	return (x > MinGridPosX && y > MinGridPosY) && (x < MaxGridPosX && y < MaxGridPosY);
 }
 
+int SceneData::GetVillageAmt(bool RED) const
+{
+	if (RED) {
+		return TotalRED;
+	}
+	else {
+		return TotalBLUE;
+	}
+}
+
+void SceneData::SetVillageAmt(const int newVillageAmt, bool RED)
+{
+	if (RED) {
+		TotalRED = newVillageAmt;
+	}
+	else {
+		TotalBLUE = newVillageAmt;
+	}
+}
+
 SceneData::BUILDING_TYPE SceneData::RollRandomBuildingType()
 {
 

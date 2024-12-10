@@ -41,6 +41,7 @@ GameObject::~GameObject()
 //week 4
 bool GameObject::Handle(Message* message)
 {
+	//MessageCheckTeamAmt
 	//let's check if message is MessageCheckActive
 	if (dynamic_cast<MessageCheckActive*>(message) != nullptr)
 		return active;
@@ -50,6 +51,10 @@ bool GameObject::Handle(Message* message)
 		return active && type == GameObject::GO_FISHFOOD;
 	else if (dynamic_cast<MessageCheckShark*>(message) != nullptr)
 		return active && type == GameObject::GO_SHARK;
+	else if (MessageCheckTeamAmt* TeamCheckMessage = dynamic_cast<MessageCheckTeamAmt*>(message))
+	{
+		return active && type >= GameObject::GO_VILLAGER && type < GameObject::GO_BLACK && TeamCheckMessage->RED == RED;
+	}
 	else if (MessageHurtEntity* hurtMessage = dynamic_cast<MessageHurtEntity*>(message))
 	{
 		std::cout << "Damage: " << std::endl;

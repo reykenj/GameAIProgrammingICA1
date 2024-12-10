@@ -34,6 +34,9 @@ public:
 
 	bool CheckWithinGrid(float x, float y, float z);
 
+	int GetVillageAmt(bool RED) const;
+	void SetVillageAmt(const int newVillageAmt, bool RED);
+
 	enum BUILDING_TYPE
 	{
 		BT_HOUSE,
@@ -60,6 +63,9 @@ private:
 
 	float TotalWoodBLUE = 0;
 	float TotalFoodEnergyBLUE = 0;
+
+	float TotalBLUE = 0;
+	float TotalRED = 0;
 
 	BUILDING_TYPE btRED;
 	BUILDING_TYPE btBLUE;
