@@ -150,6 +150,7 @@
     <ClCompile Include="Source\StatesFish.cpp" />
     <ClCompile Include="Source\StatesHouse.cpp" />
     <ClCompile Include="Source\StatesShark.cpp" />
+    <ClCompile Include="Source\StatesSummonAltar.cpp" />
     <ClCompile Include="Source\StatesVillager.cpp" />
     <ClCompile Include="Source\StateTurret.cpp" />
     <ClCompile Include="Source\Utility.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="Source\StatesFish.h" />
     <ClInclude Include="Source\StatesHouse.h" />
     <ClInclude Include="Source\StatesShark.h" />
+    <ClInclude Include="Source\StatesSummonAltar.h" />
     <ClInclude Include="Source\StatesVillager.h" />
     <ClInclude Include="Source\StateTurret.h" />
     <ClInclude Include="Source\Utility.h" />

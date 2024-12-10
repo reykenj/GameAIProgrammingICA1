@@ -110,6 +110,9 @@ void GameObject::OnCollision(GameObject* go2, float dt)
 						else if(BT == SceneData::BT_TURRET){
 							PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_TURRET, 1.0f));
 						}
+						else if (BT == SceneData::BT_SUMMONALTAR) {
+							PostOffice::GetInstance()->Send("Scene", new MessageWRU(go2, MessageWRU::SPAWN_SUMMONALTAR, 1.0f));
+						}
 						SceneData::GetInstance()->SetBuildingType(SceneData::GetInstance()->RollRandomBuildingType(), RED);
 					}
 					WoodCollected = 0;

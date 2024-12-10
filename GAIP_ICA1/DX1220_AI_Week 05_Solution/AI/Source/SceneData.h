@@ -38,6 +38,7 @@ public:
 	{
 		BT_HOUSE,
 		BT_TURRET,
+		BT_SUMMONALTAR,
 		BT_TOTAL, //must be last
 	};
 	BUILDING_TYPE RollRandomBuildingType();

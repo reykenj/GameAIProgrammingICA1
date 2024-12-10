@@ -161,7 +161,8 @@ void SceneBase::Init()
 	meshList[GEO_OVERHEAT_TURRET] = MeshBuilder::GenerateQuad("OverheatTurret", Color(1, 1, 1));
 	meshList[GEO_OVERHEAT_TURRET]->textureID = LoadTGA("Image//turret_overheat.tga");
 
-
+	meshList[GEO_SUMMONALTAR] = MeshBuilder::GenerateQuad("Summon Altar", Color(1, 1, 1));
+	meshList[GEO_SUMMONALTAR]->textureID = LoadTGA("Image//SummonAltar.tga");
 
 	meshList[GEO_TEXT]->material.kAmbient.Set(1, 0, 0);
 	meshList[GEO_LINE] = MeshBuilder::GenerateLine("line");

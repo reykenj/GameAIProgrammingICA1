@@ -7,6 +7,7 @@
 #include "StateTurret.h"
 #include "StatesShark.h"
 #include "StatesHouse.h"
+#include "StatesSummonAltar.h"
 #include "SceneData.h"
 #include "PostOffice.h"
 #include "ConcreteMessages.h"
@@ -236,6 +237,15 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm = new StateMachine();
 			go->sm->AddState(new HouseStateSpawner("HouseSpawner", go));
 			go->sm->SetNextState("HouseSpawner");
+			go->Maxenergy = 9.0f;
+			go->Maxhp = 10.0f;
+			go->Building = true;
+		}
+		else if (type == GameObject::GO_SUMMONALTAR)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new SummonAltarStateSpawner("EliteSpawner", go));
+			go->sm->SetNextState("EliteSpawner");
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 			go->Building = true;
@@ -537,6 +547,26 @@ void SceneICA1::RenderGO(GameObject* go)
 		modelStack.PushMatrix();
 		modelStack.Rotate(180, 0, 0, 1);
 		RenderMesh(meshList[GEO_HOUSE], false);
+		modelStack.PopMatrix();
+		// TO Distinguish between each other
+		modelStack.PushMatrix();
+		modelStack.Rotate(0, 0, 0, 1);
+		modelStack.Scale(0.75f, 0.75f, go->scale.z);
+		if (go->RED)
+			RenderMesh(meshList[GEO_BALL], false);
+		else {
+			RenderMesh(meshList[GEO_BLUE_BALL], false);
+		}
+		modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+	case GameObject::GO_SUMMONALTAR:
+		modelStack.PushMatrix();
+		modelStack.Translate(go->pos.x, go->pos.y, go->pos.z);
+		modelStack.Scale(go->scale.x * go->GridSizeMultiplier * (go->hp / go->Maxhp), go->scale.y * go->GridSizeMultiplier * (go->hp / go->Maxhp), go->scale.z);
+		modelStack.PushMatrix();
+		modelStack.Rotate(180, 0, 0, 1);
+		RenderMesh(meshList[GEO_SUMMONALTAR], false);
 		modelStack.PopMatrix();
 		// TO Distinguish between each other
 		modelStack.PushMatrix();
@@ -1125,7 +1155,59 @@ bool SceneICA1::Handle(Message* message)
 
 			go->sm->SetNextState("TurretStandby");
 		}
+		else if (messageWRU->type == MessageWRU::SPAWN_SUMMONALTAR)
+		{
+			//std::cout << "Making HouseStart " << std::endl;
+			Vector3 SpawnPosition;
+			bool SpawnLeft;
+			bool SpawnRight;
+			bool SpawnTop;
+			bool SpawnBottom;
 
+			SpawnLeft = SpawnRight = SpawnTop = SpawnBottom = false;
+			Vector3 temp = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnRight = true;
+			}
+			temp = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnLeft = true;
+			}
+			temp = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnTop = true;
+			}
+			temp = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+			if (SceneData::GetInstance()->CheckWithinGrid(temp.x, temp.y, temp.z)) {
+				SpawnBottom = true;
+			}
+
+
+			float random = Math::RandFloatMinMax(0.f, 1.f);
+			if (random < 0.25f && SpawnRight)
+				SpawnPosition = go->pos + Vector3(gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.5f && SpawnLeft)
+				SpawnPosition = go->pos + Vector3(-gridSize * messageWRU->threshold, 0, 0);
+			else if (random < 0.75f && SpawnTop)
+				SpawnPosition = go->pos + Vector3(0, gridSize * messageWRU->threshold, 0);
+			else if (SpawnBottom)
+				SpawnPosition = go->pos + Vector3(0, -gridSize * messageWRU->threshold, 0);
+
+
+			GameObject* Altar = FetchGO(GameObject::GO_SUMMONALTAR);
+			Altar->scale.Set(gridSize, gridSize, gridSize);
+			Altar->pos.Set(SpawnPosition.x, SpawnPosition.y, SpawnPosition.z);
+			Altar->target = go->pos;
+			Altar->steps = 0;
+			Altar->RED = go->RED;
+			//Altarse->energy = 8.f;
+			Altar->nearest = NULL;
+			Altar->Stationary = true;
+			Altar->Collision = true;
+
+			//	go->pos.Set(gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, gridOffset + Math::RandIntMinMax(0, numGrid - 1) * gridSize, 0);
+			//std::cout << "Making House " << std::endl;
+			}
 		else if (messageWRU->type == MessageWRU::SPAWN_VILLAGER)
 		{
 			GameObject* villager = FetchGO(GameObject::GO_VILLAGER);

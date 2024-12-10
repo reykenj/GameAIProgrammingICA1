@@ -22,6 +22,7 @@ struct GameObject : public ObjectBase
 		GO_VILLAGER,
 		GO_HOUSE,
 		GO_TURRET,
+		GO_SUMMONALTAR,
 		GO_BLACK,
 		GO_WHITE,
 		GO_TOTAL, //must be last
