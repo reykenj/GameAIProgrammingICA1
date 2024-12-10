@@ -34,7 +34,7 @@ void SummonAltarStateSpawner::Update(double dt)
 		ElaspedTime = 0;
 		int random = Math::RandIntMinMax(0, 10);
 		if (random == 1) {
-			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::SPAWN_VILLAGER, 1.0f));
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::SPAWN_BOMB, 1.0f));
 		}
 	}
 }

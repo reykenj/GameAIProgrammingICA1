@@ -173,6 +173,17 @@ void SceneBase::Init()
 	meshList[GEO_DEATH_BOMB]->textureID = LoadTGA("Image//bombomb_dead.tga");
 
 
+
+	meshList[GEO_ATTACKING_JUGGERNAUT] = MeshBuilder::GenerateQuad("SittingBomb", Color(1, 1, 1));
+	meshList[GEO_ATTACKING_JUGGERNAUT]->textureID = LoadTGA("Image//juggernaut_attacking.tga");
+
+	meshList[GEO_RALLY_JUGGERNAUT] = MeshBuilder::GenerateQuad("RunningBomb", Color(1, 1, 1));
+	meshList[GEO_RALLY_JUGGERNAUT]->textureID = LoadTGA("Image//juggernaut_rally.tga");
+
+	meshList[GEO_RUSHALLIES_JUGGERNAUT] = MeshBuilder::GenerateQuad("DeadBomb", Color(1, 1, 1));
+	meshList[GEO_RUSHALLIES_JUGGERNAUT]->textureID = LoadTGA("Image//juggernaut_rushallies.tga");
+
+
 	meshList[GEO_SUMMONALTAR] = MeshBuilder::GenerateQuad("Summon Altar", Color(1, 1, 1));
 	meshList[GEO_SUMMONALTAR]->textureID = LoadTGA("Image//SummonAltar.tga");
 

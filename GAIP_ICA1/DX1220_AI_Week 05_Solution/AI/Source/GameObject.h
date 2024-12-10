@@ -21,6 +21,7 @@ struct GameObject : public ObjectBase
 		GO_COW,
 		GO_VILLAGER,
 		GO_BOMB,
+		GO_JUGGERNAUT,
 		GO_HOUSE,
 		GO_TURRET,
 		GO_SUMMONALTAR,

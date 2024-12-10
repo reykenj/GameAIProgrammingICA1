@@ -112,4 +112,41 @@ public:
 };
 
 
+class VillagerCharge : public State
+{
+	GameObject* m_go;
+	float message_elapsed;
+	float m_elapsed;
+	float enemy_elasped;
+public:
+	VillagerCharge(const std::string& stateID, GameObject* go);
+	virtual ~VillagerCharge();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+
+
+
+class VillagerGoToPosition : public State
+{
+	GameObject* m_go;
+	float message_elapsed;
+	float m_elapsed;
+	bool Close = false;
+	float enemy_elasped;
+public:
+	VillagerGoToPosition(const std::string& stateID, GameObject* go);
+	virtual ~VillagerGoToPosition();
+
+	virtual void Enter();
+	virtual void Update(double dt);
+	virtual void Exit();
+
+};
+
+
 #endif

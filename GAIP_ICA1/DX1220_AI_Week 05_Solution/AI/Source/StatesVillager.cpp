@@ -150,7 +150,7 @@ void VillagerStateHungry::Update(double dt)
 	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
 	enemy_elasped += static_cast<float>(dt);
 	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
-
+	
 	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
 		//std::cout << "RAAAH" << std::endl;
 		m_go->sm->SetNextState("VillagerChaseOps");
@@ -509,5 +509,239 @@ void VillagerChaseOps::Update(double dt)
 }
 
 void VillagerChaseOps::Exit()
+{
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+VillagerCharge::VillagerCharge(const std::string& stateID, GameObject* go) : State(stateID),
+m_go(go)
+{
+
+}
+
+VillagerCharge::~VillagerCharge()
+{
+}
+
+void VillagerCharge::Enter()
+{
+	m_go->moveSpeed = HUNGRY_SPEED * 2;
+	m_go->Stationary = false;
+	m_elapsed = MESSAGE_INTERVAL;
+	enemy_elasped = MESSAGE_INTERVAL;
+}
+
+void VillagerCharge::Update(double dt)
+{
+	std::cout << "VillagerFollow" << std::endl;
+
+	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
+
+	enemy_elasped += static_cast<float>(dt);
+	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
+		//std::cout << "RAAAH" << std::endl;
+		m_go->sm->SetNextState("VillagerChaseOps");
+	}
+
+	m_go->Stationary = false;
+	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
+
+	const float tolerance = 0.5f;
+	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
+
+	if (m_go->energy < 0.f || m_go->hp <= 0)
+	{
+		m_go->sm->SetNextState("VillagerDead");
+	}
+
+	if (m_go->nearest && m_go->nearest->active)
+	{
+
+		// Check x-axis movement
+		if (std::abs(m_go->nearest->pos.x - m_go->pos.x) <= tolerance)
+		{
+			m_go->moveLeft = false;
+			m_go->moveRight = false;
+		}
+		else if (m_go->nearest->pos.x > m_go->pos.x)
+		{
+			m_go->moveLeft = false;
+		}
+		else
+		{
+			m_go->moveRight = false;
+		}
+
+		// Check y-axis movement
+		if (std::abs(m_go->nearest->pos.y - m_go->pos.y) <= tolerance)
+		{
+			m_go->moveUp = false;
+			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.y > m_go->pos.y)
+		{
+			m_go->moveDown = false;
+		}
+		else
+		{
+			m_go->moveUp = false;
+		}
+	}
+	else //go->nearest is nullptr
+	{
+
+		if (m_elapsed >= MESSAGE_INTERVAL) //ensure at least 1 second interval between messages
+		{
+			m_elapsed -= MESSAGE_INTERVAL;
+			const float HOUSE_DIST = 100.f * SceneData::GetInstance()->GetGridSize();
+			PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_HOUSE_OPS, HOUSE_DIST));
+		}
+	}
+
+	if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
+	{
+		enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
+		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
+	}
+}
+
+void VillagerCharge::Exit()
+{
+}
+
+
+
+
+
+
+
+
+
+VillagerGoToPosition::VillagerGoToPosition(const std::string& stateID, GameObject* go) : State(stateID),
+m_go(go)
+{
+
+}
+
+VillagerGoToPosition::~VillagerGoToPosition()
+{
+}
+
+void VillagerGoToPosition::Enter()
+{
+	m_go->moveSpeed = HUNGRY_SPEED;
+	m_go->Stationary = false;
+	m_elapsed = MESSAGE_INTERVAL;
+	Close = false;
+	enemy_elasped = MESSAGE_INTERVAL;
+}
+
+void VillagerGoToPosition::Update(double dt)
+{
+
+	std::cout << "VillagerGoToPosition" << std::endl;
+	enemy_elasped += static_cast<float>(dt);
+	if (m_go->nearestEnemy && m_go->nearestEnemy->active) {
+		//std::cout << "RAAAH" << std::endl;
+		m_go->sm->SetNextState("VillagerChaseOps");
+	}
+
+	//std::cout << "ChaseOps" << std::endl;
+	m_elapsed += static_cast<float>(dt); //check against this value before sending message(so we don't send the message every frame)
+
+	m_go->Stationary = false;
+	m_go->energy -= ENERGY_DROP_RATE * static_cast<float>(dt);
+
+	const float tolerance = 0.5f;
+	m_go->moveLeft = m_go->moveRight = m_go->moveUp = m_go->moveDown = true;
+
+	if (m_go->nearest)
+	{
+		if (m_elapsed >= MESSAGE_INTERVAL && !Close) {
+			m_elapsed -= MESSAGE_INTERVAL;
+			float distance = (m_go->pos - m_go->nearest->pos).Length();
+			if (distance < 3.0f)
+			{
+				Close = true;
+			}
+		}
+		else if (m_elapsed >= MESSAGE_INTERVAL * 3.0f) {
+			m_elapsed -= MESSAGE_INTERVAL;
+			if (m_go->hp < m_go->Maxhp) {
+				m_go->sm->SetNextState("VillagerGoToHouse");
+			}
+			else {
+				m_go->sm->SetNextState("VillagerFull");
+			}
+		}
+		// Check x-axis movement
+		if (std::abs(m_go->nearest->pos.x - m_go->pos.x) <= tolerance)
+		{
+			m_go->moveLeft = false;
+			m_go->moveRight = false;
+		}
+		else if (m_go->nearest->pos.x > m_go->pos.x)
+		{
+			m_go->moveLeft = false;
+		}
+		else
+		{
+			m_go->moveRight = false;
+		}
+
+		// Check y-axis movement
+		if (std::abs(m_go->nearest->pos.y - m_go->pos.y) <= tolerance)
+		{
+			m_go->moveUp = false;
+			m_go->moveDown = false;
+		}
+		else if (m_go->nearest->pos.y > m_go->pos.y)
+		{
+			m_go->moveDown = false;
+		}
+		else
+		{
+			m_go->moveUp = false;
+		}
+	}
+	else //go->nearest is nullptr
+	{
+		if (m_go->hp < m_go->Maxhp) {
+			m_go->sm->SetNextState("VillagerGoToHouse");
+		}
+		else {
+			m_go->sm->SetNextState("VillagerFull");
+		}
+		m_go->nearest = NULL;
+		m_go->nearestEnemy = NULL;
+	}
+
+
+	if (m_go->energy < 0.f || m_go->hp <= 0)
+	{
+		m_go->sm->SetNextState("VillagerDead");
+	}
+	
+
+	if (enemy_elasped >= MESSAGE_INTERVAL * 2.0f) //ensure at least 1 second interval between messages
+	{
+		enemy_elasped -= MESSAGE_INTERVAL * 2.0f;
+		PostOffice::GetInstance()->Send("Scene", new MessageWRU(m_go, MessageWRU::NEAREST_OPS, EnemyDetectionDist * SceneData::GetInstance()->GetGridSize()));
+	}
+}
+
+void VillagerGoToPosition::Exit()
 {
 }

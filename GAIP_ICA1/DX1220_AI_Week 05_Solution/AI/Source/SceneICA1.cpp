@@ -8,6 +8,7 @@
 #include "StatesShark.h"
 #include "StatesHouse.h"
 #include "StatesBomb.h"
+#include "StatesJuggernaut.h"
 #include "StatesSummonAltar.h"
 #include "SceneData.h"
 #include "PostOffice.h"
@@ -115,17 +116,28 @@ void SceneICA1::Init()
 		//grass->sm->SetNextState("VillagerFull");
 
 
-		GameObject* bomb = FetchGO(GameObject::GO_BOMB);
-		bomb->scale.Set(gridSize, gridSize, gridSize);
-		bomb->pos.Set(RandomPosition.x, RandomPosition.y, 0);
-		bomb->target = bomb->pos;
-		bomb->steps = 0;
-		//go->energy = 8.f;
-		bomb->nearest = NULL;
-		bomb->nearestEnemy = NULL;
-		bomb->Collision = true;
-		bomb->RED = true;
-		bomb->sm->SetNextState("BombWalking");
+		GameObject* juggernaut = FetchGO(GameObject::GO_JUGGERNAUT);
+		juggernaut->scale.Set(gridSize, gridSize, gridSize);
+		juggernaut->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		juggernaut->target = juggernaut->pos;
+		juggernaut->steps = 0;
+		juggernaut->nearest = NULL;
+		juggernaut->nearestEnemy = NULL;
+		juggernaut->Collision = true;
+		juggernaut->RED = true;
+		juggernaut->sm->SetNextState("JuggernautStateRally");
+		// 
+
+		//GameObject* bomb = FetchGO(GameObject::GO_BOMB);
+		//bomb->scale.Set(gridSize, gridSize, gridSize);
+		//bomb->pos.Set(RandomPosition.x, RandomPosition.y, 0);
+		//bomb->target = bomb->pos;
+		//bomb->steps = 0;
+		//bomb->nearest = NULL;
+		//bomb->nearestEnemy = NULL;
+		//bomb->Collision = true;
+		//bomb->RED = true;
+		//bomb->sm->SetNextState("BombWalking");
 
 
 		for (int x = -1; x < 2; x += 2) {
@@ -226,6 +238,9 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			go->sm->AddState(new VillagerStateCutTree("VillagerCuttingTree", go));
 			go->sm->AddState(new VillagerStateGoToHouse("VillagerGoToHouse", go));
 			go->sm->AddState(new VillagerChaseOps("VillagerChaseOps", go));
+
+			go->sm->AddState(new VillagerGoToPosition("VillagerGoToPosition", go));
+			go->sm->AddState(new VillagerCharge("VillagerFollow", go));
 			go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
@@ -291,6 +306,15 @@ GameObject* SceneICA1::FetchGO(GameObject::GAMEOBJECT_TYPE type)
 			//go->Maxenergy = 9.0f;
 			go->Maxhp = 10.0f;
 		}
+		else if (type == GameObject::GO_JUGGERNAUT)
+		{
+			go->sm = new StateMachine();
+			go->sm->AddState(new JuggernautStateRally("JuggernautStateRally", go));
+			go->sm->AddState(new JuggernautStateRushAllies("JuggernautStateRushAllies", go));
+			go->sm->AddState(new JuggernautStateAttacking("JuggernautStateAttacking", go));
+			go->sm->AddState(new JuggernautStateDead("JuggernautStateDead", go));
+			go->Maxhp = 10.0f;
+		} // Maybe later have states where grass / trees can grow farther if a certain time is reached
 	}
 	return FetchGO(type);
 }
@@ -606,6 +630,70 @@ void SceneICA1::RenderGO(GameObject* go)
 		else {
 			RenderMesh(meshList[GEO_BLUE_BALL], false);
 		}
+		modelStack.PopMatrix();
+		modelStack.PopMatrix();
+		break;
+
+	case GameObject::GO_JUGGERNAUT:
+		{
+			const int offset = 0;
+			modelStack.PushMatrix();
+			modelStack.Translate(go->pos.x, go->pos.y, zOffset);
+			modelStack.Scale(go->scale.x - offset, go->scale.y - offset, go->scale.z);
+			modelStack.PushMatrix();
+			modelStack.Rotate(180, 0, 0, 1);
+		}
+
+		if (go->sm)
+		{
+			if (go->sm->GetCurrentState() == "JuggernautStateRally")
+				RenderMesh(meshList[GEO_RALLY_JUGGERNAUT], false);
+			else if (go->sm->GetCurrentState() == "JuggernautStateRushAllies")
+				RenderMesh(meshList[GEO_RUSHALLIES_JUGGERNAUT], false);
+			else if (go->sm->GetCurrentState() == "JuggernautStateAttacking")
+				RenderMesh(meshList[GEO_ATTACKING_JUGGERNAUT], false);
+			else
+				RenderMesh(meshList[GEO_ATTACKING_JUGGERNAUT], false);
+		}
+		{
+			modelStack.PopMatrix();
+
+
+			modelStack.PushMatrix();
+			const Vector3 displacement = go->target - go->pos;
+			modelStack.Rotate(Math::RadianToDegree(atan2(displacement.y, displacement.x)), 0, 0, 1);
+			modelStack.Scale(displacement.Length() / SceneData::GetInstance()->GetGridSize(), .3f, 1.f);
+			RenderMesh(meshList[GEO_LINE], false);
+			modelStack.PopMatrix();
+
+
+			// TO Distinguish between each other
+			modelStack.PushMatrix();
+			modelStack.Rotate(0, 0, 0, 1);
+			modelStack.Scale(0.75f, 0.75f, go->scale.z);
+			if (go->RED)
+				RenderMesh(meshList[GEO_BALL], false);
+			else {
+				RenderMesh(meshList[GEO_BLUE_BALL], false);
+			}
+			modelStack.PopMatrix();
+		}
+
+		modelStack.PushMatrix();
+		ss.precision(3);
+		ss << "[" << go->pos.x << ", " << go->pos.y << "]";
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(-SceneData::GetInstance()->GetGridSize() / 4, SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
+		modelStack.PopMatrix();
+
+		modelStack.PushMatrix();
+		ss.str("");
+		ss.precision(3);
+		ss << go->energy;
+		modelStack.Scale(0.5f, 0.5f, 0.5f);
+		modelStack.Translate(0, -SceneData::GetInstance()->GetGridSize() / 4, 0);
+		RenderText(meshList[GEO_TEXT], ss.str(), Color(0, 0, 0));
 		modelStack.PopMatrix();
 		modelStack.PopMatrix();
 		break;
@@ -1141,12 +1229,13 @@ bool SceneICA1::Handle(Message* message)
 				}
 			}
 			else if (messageWRU->type == MessageWRU::NEAREST_HOUSE_OPS &&
-				go2->type == GameObject::GO_HOUSE && go->RED != go2->RED)
+				go2->type >= GameObject::GO_HOUSE  && go2->type < GameObject::GO_BLACK && go->RED != go2->RED && go2->hp > 0)
 			{
-
+				//std::cout << "nearest house ops" << std::endl;
 				float distance = (go->pos - go2->pos).Length();
 				if (distance < messageWRU->threshold && distance < nearestDistance)
 				{
+					std::cout << "nearest house ops" << std::endl;
 					nearestDistance = distance;
 					go->nearest = go2;
 				}
@@ -1161,6 +1250,19 @@ bool SceneICA1::Handle(Message* message)
 					go2->hp -= 10;
 					//std::cout << "FOUND ENEMY" << std::endl;
 				}
+				//std::cout << "Searching for Villager OPS" << std::endl;
+			}
+			else if (messageWRU->type == MessageWRU::SEND_ALLY_VILLAGERS_TO_POSITION &&
+				go2->type == GameObject::GO_VILLAGER && go->RED == go2->RED)
+			{
+					go2->nearest = go;
+					go2->sm->SetNextState("VillagerGoToPosition");
+			}
+			else if (messageWRU->type == MessageWRU::RALLY_ALL_VILLAGERS &&
+				go2->type == GameObject::GO_VILLAGER && go->RED == go2->RED)
+			{
+				go2->nearest = go;
+				go2->sm->SetNextState("VillagerFollow");
 				//std::cout << "Searching for Villager OPS" << std::endl;
 			}
 		}
